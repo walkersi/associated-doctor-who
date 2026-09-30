@@ -1,2 +1,2 @@
 cd code
-python3 -m preprocessing.data_extraction
+python3 -m datasets.data_extraction

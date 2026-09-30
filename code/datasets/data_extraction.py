@@ -15,27 +15,40 @@ def slug_from_url(url: str):
     before = url.rfind('/')
     return url[before + 1:]
 
-# returns tuple of the records, then any header listing
-def open_csv(path: str, has_header=True):
+def add_slug(record: dict):
+    record["slug"] = slug_from_url(record["TARDIS Guide URL"])
+    return record
+
+# returns records as dictionary with given header or the first line as header if None
+def open_csv_as_dict(path: str, header: list = None):
     header = None
 
     with open(path, newline='') as csv_file:
         reader = csv.reader(csv_file)
-        # skip the header line if required
-        if has_header:
+        # read the header line as the CSV format if not provided
+        if not header:
             header = reader.__next__()
         # then read the whole thing into records
-        return [record for record in reader], header
+        records = [record for record in reader]
+        # convert to dicts
+        dict_records = []
+        for record in records:
+            dictified = {}
+            for field, value in zip(header, record):
+                dictified[field] = value
+            dict_records.append(dictified)
+        return dict_records
 
 def main():
 
-    records, header = open_csv("raw/tardis-guide-everything.csv")
-
-    print(records)
-    print(header)
+    records = open_csv_as_dict("datasets/raw/tardis-guide-everything.csv")
 
     allowed_series_prefixes = ["Doctor Who"]
+    
+    records = map(add_slug, records)    # todo correct
+    records = filter(lambda r: r["Series"].startswith("Doctor Who"), records)
 
+    print([r["slug"] for r in records])
     #map(lambda r: slug_from_url(), records)
 
     #api = TardisGuide()
