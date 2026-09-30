@@ -29,7 +29,7 @@ def open_csv(path: str, has_header=True):
 
 def main():
 
-    records, header = open_csv("resources/doctor-who-tv/tardis-guide.export-for-wiki.csv")
+    records, header = open_csv("raw/tardis-guide-everything.csv")
 
     print(records)
     print(header)
