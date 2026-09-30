@@ -1,4 +1,4 @@
-from ..tardis.tardis_guide import TardisGuide
+from tardis.tardis_guide import TardisGuide
 import csv
 
 # code for automatically gathering rich texts for all of a certain 
@@ -29,7 +29,7 @@ def open_csv(path: str, has_header=True):
 
 def main():
 
-    records, header = open_csv("resources/doctor-who-tv/tardis-guuide.export-for-wiki.csv")
+    records, header = open_csv("resources/doctor-who-tv/tardis-guide.export-for-wiki.csv")
 
     print(records)
     print(header)

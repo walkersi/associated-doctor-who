@@ -1,5 +1,5 @@
 from api.api_connection import API as API
-from tardis_types import *
+from tardis.tardis_types import *
 from api.logger import LOGGER
 
 # workflow:
