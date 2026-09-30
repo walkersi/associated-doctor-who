@@ -1,0 +1,28 @@
+{
+    "endpoint_root": "https://tardis.guide/api/mv/v1/",
+    "max_requests_per_minute": 200,
+    "request_timeout_seconds": 15,
+    "backoff_after_429_seconds": 60,
+    "api_key_file": "api/api-key.json",
+    "api_key_type": "Bearer",
+    "api_cache_file": "api/cache/api-cache.csv",
+    "api_cache_dump": "api/cache/api",
+    "api_cache_separator": ":",
+    "logger_mode": "developer",
+    "_comment": "Daily / Fortnightly / Weekly / cache renewal",
+    "cache": [
+        {
+            "endpoint": "^stories",
+            "expiry_seconds": 86400
+        },
+        {
+            "endpoint": "^story/.*",
+            "expiry_seconds": 1209600
+        },
+        {
+            "endpoint": ".*",
+            "expiry_seconds": 604800
+        }
+    ]
+    
+}
