@@ -2,11 +2,18 @@ import datasets.data_extraction as data
 from serialise import serialise_to_file
 from tardis.tardis_guide import TardisGuide
 from tardis.tardis_types import Story
+from api.logger import Logger, Level, Type
 
 # code for automatically gathering rich texts for all of a certain 
 # story type from the local csv source
+# and processing into jsons stored in filesystem
+# that can be loaded into Story objects (see story_loader.py)
+# --> story filenames in format "[output path]/episode-slug.VERSION.json"
 
 OUTPUT_PATH = "datasets/processed/stories/"
+SCHEMA_VERSION = "v1.0.0"
+# logger for this part of the system
+LOGGER = Logger(type=Type.INFO, level=Level.DEVELOPER)
 
 # dict_keys
 TITLE = "title"
@@ -47,8 +54,16 @@ def load_new_who_slugs():
     return [r[SLUG] for r in records]
 
 def save_story(story: Story):
-    file_path = OUTPUT_PATH + story.slug + ".json"
+    file_path = OUTPUT_PATH + story.slug + SCHEMA_VERSION + ".json"
     serialise_to_file(story, file_path)
+
+# extracts slugs from grouped items with slugs (e.g. tropes)
+def extract(rich_story: str, field):
+    return extract_slugs_from_object_group(rich_story[field])
+
+def extract_slugs_from_object_group(group: str):
+    return [item["slug"] for item in group]
+
 
 def main():
     # load a list of the new who tardis guide slug IDs using the CSV file
@@ -60,7 +75,14 @@ def main():
     # disconnect from API
     guide.close()
     # process the stories into application objects
-    stories = [] # TODO
+    stories = []
+    for rich in riches:
+        # turn each tardis guide API object into a Story
+        story = Story(rich["slug"], rich["title"], rich["writer"], 
+                      extract(rich, "tropes"), extract(rich, "cast"),
+                      extract(rich, "characters"),
+                      extract(rich, "locations"))
+        stories.append(story)
     # and write them to the filesystem
     for story in stories:
         save_story(story)
