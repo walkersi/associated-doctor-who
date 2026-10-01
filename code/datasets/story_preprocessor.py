@@ -79,7 +79,8 @@ def main():
     for rich in riches:
         # turn each tardis guide API object into a Story
         story = Story(rich["slug"], rich["title"], rich["writer"], 
-                      extract(rich, "tropes"), extract(rich, "actors"),
+                      extract(rich, "tropes"), 
+                      extract(rich, "actors"),
                       extract(rich, "characters"),
                       extract(rich, "locations"))
         stories.append(story)
