@@ -1,15 +1,12 @@
 from tardis.tardis_types import Story
 from datasets.serialise import deserialise_from_file
 from datasets.story_preprocessor import OUTPUT_PATH as INPUT_PATH
-from datasets.story_preprocessor import VERSION, LOGGER
-from os import listdir
-from os.path import isfile, join
+from datasets.story_preprocessor import SCHEMA_VERSION, LOGGER
+from datasets.os_utils import get_all_files_in_directory
 
-def get_all_files_in_directory(dir: str):
-    return [item for item in listdir(dir) if isfile(join(dir, item))]
 
 def load_story(story_file: str):
-    if story_file.endswith(f".{VERSION}.json"):
+    if story_file.endswith(f".{SCHEMA_VERSION}.json"):
         return deserialise_from_file(story_file, Story)
     
     LOGGER.warn("Couldn't load", story_file, "due to schema verison mismatch - skipped.")
@@ -25,6 +22,6 @@ def load_stories(directory: str=INPUT_PATH) -> list[Story]:
         story = load_story(directory + file)
         # only append if loading successful
         if story:
-            stories.append(json_files)
+            stories.append(story)
 
     return stories
