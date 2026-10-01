@@ -1,6 +1,6 @@
 import json
 # TODO integrate rename/cull/repopulate/infer for space efficient serialisation
-from data_extraction import rename_all
+#from datasets.data_extraction import rename_all
 
 # class for serialising objects to json
 # only works for objects where their fields are primitives (bools, ints, floats, str)

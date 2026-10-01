@@ -1,7 +1,7 @@
 from tardis.tardis_types import Story
-from serialise import deserialise_from_file
-from story_preprocessor import OUTPUT_PATH as INPUT_PATH
-from story_preprocessor import VERSION, LOGGER
+from datasets.serialise import deserialise_from_file
+from datasets.story_preprocessor import OUTPUT_PATH as INPUT_PATH
+from datasets.story_preprocessor import VERSION, LOGGER
 from os import listdir
 from os.path import isfile, join
 

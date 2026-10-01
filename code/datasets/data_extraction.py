@@ -56,7 +56,6 @@ def record_matches(record: dict, key_values: dict, compares=None):
     for key, value in key_values.items():
         # use equals as the default comparison, or select provided
         compare = (lambda x, y: x == y) if key not in compares else compares[key]
-        print(key, "func", compare, "values:", record[key], "and", value)
         if not compare(record[key], value):
             # not a match
             return False

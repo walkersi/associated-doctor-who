@@ -1,5 +1,5 @@
 import datasets.data_extraction as data
-from serialise import serialise_to_file
+from datasets.serialise import serialise_to_file
 from tardis.tardis_guide import TardisGuide
 from tardis.tardis_types import Story
 from api.logger import Logger, Level, Type
