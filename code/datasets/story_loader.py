@@ -5,7 +5,7 @@ from datasets.story_preprocessor import VERSION, LOGGER
 from os import listdir
 from os.path import isfile, join
 
-def get_all_files_in_directory(dir):
+def get_all_files_in_directory(dir: str):
     return [item for item in listdir(dir) if isfile(join(dir, item))]
 
 def load_story(story_file: str):
@@ -15,7 +15,7 @@ def load_story(story_file: str):
     LOGGER.warn("Couldn't load", story_file, "due to schema verison mismatch - skipped.")
     return None
 
-def load_stories(directory=INPUT_PATH):
+def load_stories(directory: str=INPUT_PATH) -> list[Story]:
     files = get_all_files_in_directory(directory)
     # filter out anything thats not a json that might also be in there
     json_files = filter(lambda f: f.endswith("json"), files)
