@@ -71,15 +71,15 @@ def main():
     # connect to API
     guide = TardisGuide()
     # request rich story descriptions of all the stories
-    riches = [guide.get_story_rich(f"story/{slug}") for slug in slugs]
+    riches = [guide.get_story_rich(slug) for slug in slugs]
     # disconnect from API
-    guide.close()
+    guide.disconnect()
     # process the stories into application objects
     stories = []
     for rich in riches:
         # turn each tardis guide API object into a Story
         story = Story(rich["slug"], rich["title"], rich["writer"], 
-                      extract(rich, "tropes"), extract(rich, "cast"),
+                      extract(rich, "tropes"), extract(rich, "actors"),
                       extract(rich, "characters"),
                       extract(rich, "locations"))
         stories.append(story)
