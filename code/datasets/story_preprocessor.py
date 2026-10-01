@@ -54,7 +54,7 @@ def load_new_who_slugs():
     return [r[SLUG] for r in records]
 
 def save_story(story: Story):
-    file_path = OUTPUT_PATH + story.slug + SCHEMA_VERSION + ".json"
+    file_path = OUTPUT_PATH + story.slug + "." + SCHEMA_VERSION + ".json"
     serialise_to_file(story, file_path)
 
 # extracts slugs from grouped items with slugs (e.g. tropes)
@@ -84,6 +84,7 @@ def main():
                       extract(rich, "characters"),
                       extract(rich, "locations"))
         stories.append(story)
+
     # and write them to the filesystem
     for story in stories:
         save_story(story)
