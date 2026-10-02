@@ -43,8 +43,13 @@ def reprocess_record(record: dict):
     
 def should_keep_record(record: dict):
     # keep record when its new who TV
-    field_matches = {MEDIA: "TV", RANGE: "Doctor Who", SERIES: "Doctor Who S"}
-    compares = {SERIES: lambda cur, mat: cur.startswith(mat)}
+    # series filter is based on CSV format:
+    #  - Doctor Who S[6] or S[pecials] or S[eason One]
+    #  - 60th Anniversary is listed separately
+    #  - 
+    field_matches = {MEDIA: "TV", RANGE: "Doctor Who", SERIES: ["Doctor Who S", "60th Anniversary Specials"]}
+    start_with_any_of = lambda cur, matches: any([cur.startswith(match) for match in matches])
+    compares = {SERIES: start_with_any_of}
     return data.record_matches(record, field_matches, compares=compares)
 
 def load_new_who_slugs():
@@ -68,10 +73,12 @@ def extract_slugs_from_object_group(group: str):
 def main():
     # load a list of the new who tardis guide slug IDs using the CSV file
     slugs = load_new_who_slugs()
+    LOGGER.info("Loaded slugs from CSV, n=", len(slugs))
     # connect to API
     guide = TardisGuide()
     # request rich story descriptions of all the stories
     riches = [guide.get_story_rich(slug) for slug in slugs]
+    LOGGER.info("Gathered rich story API responses, n=", len(riches))
     # disconnect from API
     guide.disconnect()
     # process the stories into application objects
@@ -84,6 +91,8 @@ def main():
                       extract(rich, "characters"),
                       extract(rich, "locations"))
         stories.append(story)
+    
+    LOGGER.info("Created story objects, n=", len(stories))
 
     # and write them to the filesystem
     for story in stories:
