@@ -23,5 +23,7 @@ def load_stories(directory: str=INPUT_PATH) -> list[Story]:
         # only append if loading successful
         if story:
             stories.append(story)
+        else:
+            LOGGER.warn("Couldn't read story from", file, ", skipped")
 
     return stories
