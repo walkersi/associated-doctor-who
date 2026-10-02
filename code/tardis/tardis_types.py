@@ -8,6 +8,8 @@ class Story:
         self.writers = writers
         self.tropes = tropes
         self.cast = cast
+        self.characters = characters
+        self.locations = locations
     
     def get_name(self):
         return self.name
