@@ -67,7 +67,7 @@ def record_matches(record: dict, key_values: dict, compares=None):
 def open_csv_as_dict(path: str, header: list = None):
     header = None
 
-    with open(path, newline='') as csv_file:
+    with open(path, newline='', encoding='utf-8') as csv_file:
         reader = csv.reader(csv_file)
         # read the header line as the CSV format if not provided
         if not header:
