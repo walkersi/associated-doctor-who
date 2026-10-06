@@ -3,6 +3,7 @@ from api.logger import LOGGER, Level
 import re, hashlib, csv, json, os
 from datetime import datetime, timedelta
 from dataclasses import dataclass
+from pathlib import Path
 
 # json dictionary keys
 ENTRY_ENDPOINT = "endpoint" # where endpoint is a regex
@@ -24,6 +25,10 @@ class APICache:
         self.cache_file = config.get(Config.API_CACHE_FILE)
         # get the name of the directory where the api responses will cache
         self.cache_directory = config.get(Config.API_CACHE_DIR) + "/"
+
+        # create the empty cache structure
+        Path(self.cache_directory).mkdir(parents=True, exist_ok=True)
+
         # get the cache line separator character from the config
         self.separator_char = config.get(Config.API_CACHE_SEPARATOR_CHAR)
         # map (endpoint:params) to (file, expiry_datetime)
