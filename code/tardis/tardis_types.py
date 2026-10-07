@@ -13,6 +13,21 @@ class Story:
     
     def get_name(self):
         return self.name
-    
+
+    def get_tropes(self):
+        return self.tropes
+
+    def get_slug(self):
+        return self.slug
+
+    def get_cast(self):
+        return self.cast
+
+    def get_characters(self):
+        return self.characters
+
+    def get_locations(self):
+        return self.locations
+
     def get_writers(self):
         return self.writers
