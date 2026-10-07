@@ -1,17 +1,16 @@
-from analysis.counter import SCHEMA_VERSION, OUTPUT_PATH
-ATTRIBUTES = ["location", "trope", "writer", "character"]
+from analysis.counter import SCHEMA_VERSION, OUTPUT_PATH, OUTPUT_FILE_DEFAULT
+from datasets.serialise import deserialise_from_file, LOGGER
 
-def read_file(attribute):
-    counts = {}
-    with open(OUTPUT_PATH + attribute + "_counts" + SCHEMA_VERSION + ".txt", "r") as f:
-        for line in f:
-            item, count = line.strip().split(": ")
-            counts[item] = int(count)
-    return counts
-
-def get_counts():
-    results = {}
-    for attribute in ATTRIBUTES:
-        counts = read_file(attribute)
-        results[attribute] = counts
-    return results
+# returns {{}} of attributes mapped to values mapped to counts
+# see counter ATTRIBUTE constants for reading
+# or None if unreadable/bad schema version
+# or errors if no OS perms or smth
+def load_counts(file=OUTPUT_FILE_DEFAULT):
+    # deserialise the counts file into a dictionary
+    # TODO generalise schema versioning system
+    file_name = f"{OUTPUT_PATH}/{file}.{SCHEMA_VERSION}.json"
+    count_dict = deserialise_from_file(file_name, dict)
+    if not count_dict:
+        LOGGER.warn(f"Couldn't load counts file {file}, possible schema version mismatch")
+    return count_dict
+    
