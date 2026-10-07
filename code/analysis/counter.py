@@ -1,5 +1,8 @@
 from datasets.story_loader import load_stories
 
+OUTPUT_PATH = "analysis/counts/"
+SCHEMA_VERSION = "_v1.0.0"
+
 class Counter:
     def __init__(self):
         self.stories = load_stories()
@@ -26,7 +29,18 @@ class Counter:
                 else:
                     self.counts[category][item] += 1
 
-counter = Counter() 
-counter.get_items()
-counter.get_count()
-print(counter.counts)
+    def create_file(self, filename, category):
+        with open(OUTPUT_PATH + filename + SCHEMA_VERSION + ".txt", "w") as f:
+            for item, count in self.counts[category].items():
+                f.write(f"  {item}: {count}\n")
+
+def main():
+    counter = Counter() 
+    counter.get_items()
+    counter.get_count()
+    counter.create_file("location_counts", "location")
+    counter.create_file("trope_counts", "trope")
+    counter.create_file("writer_counts", "writer")
+    counter.create_file("character_counts", "character")
+
+main()
