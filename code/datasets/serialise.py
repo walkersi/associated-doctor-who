@@ -9,19 +9,32 @@ from api.logger import Logger, Level, Type
 
 LOGGER = Logger(Type.WARN, Level.DEVELOPER)
 
-def serialise(object):
-    attribs = object.__dict__
+# serialise an object or data structure (e.g. [], {})
+def serialise(possible_object):
+    # just serialise as is if data structure
+    attribs = possible_object
+    if hasattr(possible_object, "__dict__"):
+        # extract the attributes to serialise if object
+        attribs = possible_object.__dict__
+    # serialise
     return json.dumps(attribs)
 
 def deserialise(json_data, target_class):
+    # deserialise the json to a dict
     attribs = json.loads(json_data)
+    # load the attributes into a new object of target class
     object = target_class.__new__(target_class)
-    object.__dict__ = attribs
-    return object
+    # load in the attributes if it's class-like
+    if hasattr(object, "__dict__"):
+        object.__dict__ = attribs
+        return object
+    # otherwise, the raw structure is fine
+    return attribs
 
-def serialise_to_file(object, path):
+# serialise given object or structure to the given file
+def serialise_to_file(object_like, path):
     with open(path, "w+") as file:
-        file.write(serialise(object))
+        file.write(serialise(object_like))
 
 # returns None if file could not be found
 def deserialise_from_file(path, target_class):
