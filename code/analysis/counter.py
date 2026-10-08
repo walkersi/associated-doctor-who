@@ -2,23 +2,29 @@ from datasets.story_loader import load_stories
 from datasets.os_utils import create_nested_directory
 from datasets.serialise import serialise_to_file
 
+#
+# classes for performing counting operations over the attributes of multiple
+# DictLike objects (e.g. Story)
+#
+
 OUTPUT_PATH = "analysis/counts/"
 OUTPUT_FILE_DEFAULT = "counts"
-SCHEMA_VERSION = "v1.0.1"
-
-ATTRIBUTE_LOCATIONS = "locations"
-ATTRIBUTE_CHARACTERS = "characters"
-ATTRIBUTE_WRITERS = "writers"
-ATTRIBUTE_TROPES = "tropes"
+SCHEMA_VERSION = "v1.0.2" # v1.0.2 supports a more generalised schema counter
 
 # for some specified object type, get a property
 # using a function if form f(object) -> attribute
 # and associate its value with a set name
 # names are useful because it means these can be serialised
+# default getter function calls 'object.get(name)' which is viable if
+# lookup strings match the object's attribute names
 class NamedLookup:
-    def __init__(self, name: str, getter):
+    def __init__(self, name: str, getter = None):
         self.name = name
-        self.getter = getter
+        if getter:
+            self.getter = getter
+        else:
+            # given some 
+            self.getter = lambda o: o.get(name)
 
     def get(self, obj: object):
         return self.getter(obj)
@@ -65,7 +71,7 @@ class Counter:
     def write_to_file(self, file_name):
         # serialise the counts dictionary and write it to the given file
         # make the output path if it does not exist
-        create_nested_directory(file_name)
+        create_nested_directory(OUTPUT_PATH)
         # create file path
         path = f"{OUTPUT_PATH}/{file_name}.{SCHEMA_VERSION}.json"
         serialise_to_file(self.counts, path)
@@ -78,17 +84,15 @@ class Counter:
 
 def main():
 
-    # define which attributes to count and how to retrieve their values
-    counting_attributes = [
-        NamedLookup(ATTRIBUTE_LOCATIONS, lambda s: s.get_locations()),
-        NamedLookup(ATTRIBUTE_TROPES, lambda s: s.get_tropes()),
-        NamedLookup(ATTRIBUTE_CHARACTERS, lambda s: s.get_characters()),
-        NamedLookup(ATTRIBUTE_WRITERS, lambda s: s.get_writers()),
-    ]
     # load the stories from disk and count the fields
     stories = load_stories()
+    # check the current schema of the story object
+    sample = stories[0]
+    # define which attributes to count and how to retrieve their values
+    # only count attributes whose values are lists.
+    attributes = sample.get_attribute_names(predicate = lambda _, v: isinstance(v, list))
+    counting_attributes = [NamedLookup(attribute) for attribute in attributes]
     Counter(stories, counting_attributes).process_dataset()
-    
 
 if __name__=='__main__':
     main()
