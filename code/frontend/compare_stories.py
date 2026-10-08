@@ -45,6 +45,7 @@ def compute_similarity(overlapping_attributes):
     #print(overlapping_attributes)
     counts = load_counts()
     similarity_score = 0
+    highest_score = (None, 0)
     for key in overlapping_attributes:
         for attribute in overlapping_attributes[key]:
             # the more common an attribute is, the less it contributes to the similarity score
@@ -53,8 +54,11 @@ def compute_similarity(overlapping_attributes):
                 base = 0.8
             else:
                 base = 0.95
-            similarity_score += base ** counts[key][attribute]
-    return similarity_score
+                adding_score = base ** counts[key][attribute]
+            similarity_score += adding_score
+            if adding_score > highest_score[1]:
+                highest_score = (attribute, adding_score)
+    return similarity_score, highest_score
 
 def compare_random_stories():
     stories = load_stories()
@@ -62,7 +66,7 @@ def compare_random_stories():
     story2 = random.choice(stories)
     #print(story1.get_name(), "vs", story2.get_name())
     #print(compute_similarity(compare_stories(story1, story2)))
-    return story1, story2, compute_similarity(compare_stories(story1, story2))
+    return story1, story2, compute_similarity(compare_stories(story1, story2))[0]
 
 def find_algorithm_stats():
     highest = 0
