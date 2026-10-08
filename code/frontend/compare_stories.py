@@ -45,8 +45,9 @@ def compute_similarity(overlapping_attributes):
     #print(overlapping_attributes)
     counts = load_counts()
     similarity_score = 0
-    all_scores = []
+    all_scores = {}
     for key in overlapping_attributes:
+        all_scores[key] = []
         for attribute in overlapping_attributes[key]:
             # the more common an attribute is, the less it contributes to the similarity score
             # tropes scale faster than other attributes as they tend to be less meaningful
@@ -56,7 +57,7 @@ def compute_similarity(overlapping_attributes):
                 base = 0.95
                 adding_score = base ** counts[key][attribute]
             similarity_score += adding_score
-            all_scores.append((key, attribute, adding_score))
+            all_scores[key].append((attribute, adding_score))
     return similarity_score, all_scores
 
 def compare_random_stories():
