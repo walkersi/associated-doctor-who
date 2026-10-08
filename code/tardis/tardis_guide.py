@@ -108,10 +108,9 @@ class TardisGuide:
 
     # uses rich story info to construct application object
     def story_from_json(self, story_json):
-        return Story(story_json["title"], 
-            story_json["average_score"],
-            story_json["number_of_ratings"], 
-            story_json["writer"])
+        return Story(story_json["slug"], story_json["title"], 
+            story_json["writer"], story_json["tropes"], story_json["cast"],
+            story_json["characters"], story_json["time_travel"])
 
     def get_all_stories_by_writer(self, writer: str, media_filters: list[str] = None, range_filters: list[str] = None) -> list[Story]:
         # request each story's detailed format for the average score info

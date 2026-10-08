@@ -89,7 +89,8 @@ def main():
                       extract(rich, "tropes"), 
                       extract(rich, "actors"),
                       extract(rich, "characters"),
-                      extract(rich, "locations"))
+                      extract(rich, "locations"),
+                      extract(rich, "time_travel"))
         stories.append(story)
     
     LOGGER.info("Created story objects, n=", len(stories))

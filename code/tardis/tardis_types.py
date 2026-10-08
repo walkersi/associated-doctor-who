@@ -1,33 +1,29 @@
+from dataclasses import dataclass
+from enum import Enum
+
+
+# represents a show -> these are NOT from the tardis guide API
+class Show(Enum):
+    NEW_WHO = "new-who"
+    CLASSIC = "classic-who"
+    TORCHWOOD = "torchwood"
+    SARAH_JANE_ADVENTURES = "sja"
+    CLASS = "class"
+
 # application-relevant representation of storys from tardisguide database
+@dataclass
 class Story:
 
-    # where tropes/cast/characters/locations are all slugs
-    def __init__(self, slug: str, name: str, writers: list[str], tropes: list[str], cast: list[str], characters: list[str], locations: list[str]):
-        self.slug = slug
-        self.name = name
-        self.writers = writers
-        self.tropes = tropes
-        self.cast = cast
-        self.characters = characters
-        self.locations = locations
-    
-    def get_name(self):
-        return self.name
+    slug: str # unique human-readable ID from tardisguide
+    title: str # actual title
+    writers: list[str] # list of writer names
+    tropes: list[str] # lists of slugs
+    cast: list[str]
+    characters: list[str]
+    locations: list[str]
+    time_travel: list[str]
+    show: str = Show.NEW_WHO # where the string is a value of Show
 
-    def get_tropes(self):
-        return self.tropes
-
-    def get_slug(self):
-        return self.slug
-
-    def get_cast(self):
-        return self.cast
-
-    def get_characters(self):
-        return self.characters
-
-    def get_locations(self):
-        return self.locations
-
-    def get_writers(self):
-        return self.writers
+    # get an attribute by its string name
+    def get(self, dict_id):
+        return self.__dict__[dict_id]
