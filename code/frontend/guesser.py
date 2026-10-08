@@ -10,7 +10,13 @@ def guess_story(target: Story):
     stories = load_stories()
     guess = None
     while guess is None or guess.get_name() != target.get_name():
-        guess = find_story(stories, input("Enter a story to guess: "))
+        error = True
+        while error:
+            guess = find_story(stories, input("Enter a story to guess: "))
+            if guess is None:
+                print("Story not found. Please try again.")
+            else:
+                error = False
         overlapping_attributes = compare_stories(target, guess)
         score, best_attribute = compute_similarity(overlapping_attributes)
         print("Similarity score:", score)
