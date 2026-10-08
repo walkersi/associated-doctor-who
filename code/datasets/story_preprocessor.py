@@ -11,7 +11,7 @@ from api.logger import Logger, Level, Type
 # --> story filenames in format "[output path]/episode-slug.VERSION.json"
 
 OUTPUT_PATH = "datasets/processed/stories/"
-SCHEMA_VERSION = "v1.0.0"
+SCHEMA_VERSION = "v1.0.1" # v1.0.1 supports time_travel in schema
 # logger for this part of the system
 LOGGER = Logger(type=Type.INFO, level=Level.DEVELOPER)
 
