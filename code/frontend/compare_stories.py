@@ -8,7 +8,7 @@ def compare_stories(target_story: Story, current_story: Story) -> dict[str, set]
     ignore_fields = ["title", "slug", "show"] # note: these should match attrib names in Story
     # predicate for keeping only comparable fields
     required_only = lambda name, _: name not in ignore_fields
-
+    # get comparable fields
     target_attributes = target_story.get_attribute_subset(predicate=required_only)
     current_attributes = current_story.get_attribute_subset(predicate=required_only)
 
@@ -43,11 +43,9 @@ def compute_similarity(overlapping_attributes):
         for attribute in overlapping_attributes[key]:
             # the more common an attribute is, the less it contributes to the similarity score
             # tropes scale faster than other attributes as they tend to be less meaningful
-            if key == "tropes": 
-                base = 0.8
-            else:
-                base = 0.95
-                adding_score = base ** counts[key][attribute]
+            base = 0.8 if key == "tropes" else 0.95
+            # TODO comment this stuff how does it work i like it but i am tired my love
+            adding_score = base ** counts[key][attribute]
             similarity_score += adding_score
             all_scores[key].append((attribute, adding_score))
     return similarity_score, all_scores
