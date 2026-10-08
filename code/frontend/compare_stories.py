@@ -38,19 +38,39 @@ def find_story(stories: list[Story], story_slug: str):
     return None
 
 def compute_similarity(overlapping_attributes):
-    print(overlapping_attributes)
+    #print(overlapping_attributes)
     counts = load_counts()
     similarity_score = 0
     for key in overlapping_attributes:
         for attribute in overlapping_attributes[key]:
-            similarity_score += (5 - math.log(counts[key][attribute]))
+            if key == "trope":
+                base = 0.8
+            else:
+                base = 0.95
+            similarity_score += base ** counts[key][attribute]
     return similarity_score
 
 def compare_random_stories():
     stories = load_stories()
     story1 = random.choice(stories)
     story2 = random.choice(stories)
-    print(story1.get_name(), "vs", story2.get_name())
-    print(compute_similarity(compare_stories(story1, story2)))
+    #print(story1.get_name(), "vs", story2.get_name())
+    #print(compute_similarity(compare_stories(story1, story2)))
+    return story1, story2, compute_similarity(compare_stories(story1, story2))
 
-#compare_random_stories()
+def find_algorithm_stats():
+    highest = 0
+    average = 0
+    total = 0
+    highest_stories = [None, None]
+    for i in range(1000):
+        story1, story2, similarity_score = compare_random_stories()
+        if story1 != story2:
+            if similarity_score > highest:
+                highest = similarity_score
+                highest_stories = [story1, story2]
+            average += similarity_score
+            total += 1
+    print("Stories:", highest_stories[0].get_name(), "vs", highest_stories[1].get_name())
+    print("Average similarity score:", average / total)
+    print("Highest similarity score:", highest)
