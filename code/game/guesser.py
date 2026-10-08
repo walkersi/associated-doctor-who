@@ -1,6 +1,5 @@
 from tardis.tardis_types import Story
-from frontend.compare_stories import compare_stories, compute_similarity, find_story
-from datasets.story_loader import load_stories
+from game.compare_stories import compare_stories, compute_similarity, find_story
 
 class Guess:
     def __init__(self, guessed_story: Story, score: float, shared_attributes):
@@ -20,9 +19,9 @@ class Guess:
     def get_name(self):
         return self.guessed_story.title
 
-def guess_story(target: Story):
+def guess_story(target: Story, game):
 
-    stories = load_stories()
+    stories = game.stories
     error = True
     while error:
         guess = find_story(stories, input("Enter a story to guess: "))

@@ -1,12 +1,12 @@
-from datasets.story_loader import load_stories
-from frontend.guesser import guess_story
+from game.guesser import guess_story
 import random
 
 class Player:
-    def __init__(self):
+    def __init__(self, game):
         self.points = 20
         self.guesses = []
-        self.target = random.choice(load_stories())
+        self.target = random.choice(game.stories)
+        self.game = game # keep reference to game
 
     def get_points(self):
         return self.points
@@ -24,7 +24,7 @@ class Player:
         print("Similarity score:", self.guesses[-1].get_score())
     
     def guess(self):
-        guess = guess_story(self.target)
+        guess = guess_story(self.target, self.game)
         self.add_guess(guess)
         self.deduct_points(1)
         self.display_score()
@@ -43,5 +43,3 @@ class Player:
             print("Game over! You've run out of points.")
             print("The correct story was:", self.target.title)
 
-player = Player()
-player.play_game()
