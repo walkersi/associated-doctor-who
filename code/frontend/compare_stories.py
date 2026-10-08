@@ -6,6 +6,7 @@ import math
 import random
 
 def compare_stories(target_story: Story, current_story: Story):
+    # find the attributes for each story
     counting_attributes = [
         NamedLookup("name", lambda s: s.get_name()),
         NamedLookup("locations", lambda s: s.get_locations()),
@@ -15,9 +16,11 @@ def compare_stories(target_story: Story, current_story: Story):
     ]
     target_attributes = get_attributes(target_story, counting_attributes)
     current_attributes = get_attributes(current_story, counting_attributes)
+
+    # find overlapping attributes
     overlapping_attributes = {}
     for key in target_attributes:
-        if key != "name":
+        if key != "name": # we don't care about name overlapping
             overlapping_attributes[key] = []
             if key in current_attributes:
                 for attribute in target_attributes[key]:
@@ -31,6 +34,7 @@ def get_attributes(story: Story, counting_attributes: list[NamedLookup]):
         attributes[getter.name] = getter.get(story)
     return attributes
 
+# find story object by slug
 def find_story(stories: list[Story], story_slug: str):
     for story in stories:
         if story.slug == story_slug:
@@ -43,7 +47,9 @@ def compute_similarity(overlapping_attributes):
     similarity_score = 0
     for key in overlapping_attributes:
         for attribute in overlapping_attributes[key]:
-            if key == "trope":
+            # the more common an attribute is, the less it contributes to the similarity score
+            # tropes scale faster than other attributes as they tend to be less meaningful
+            if key == "trope": 
                 base = 0.8
             else:
                 base = 0.95
@@ -65,7 +71,7 @@ def find_algorithm_stats():
     highest_stories = [None, None]
     for i in range(1000):
         story1, story2, similarity_score = compare_random_stories()
-        if story1 != story2:
+        if story1 != story2: # make sure it isn't just the same story being compared to itself
             if similarity_score > highest:
                 highest = similarity_score
                 highest_stories = [story1, story2]
