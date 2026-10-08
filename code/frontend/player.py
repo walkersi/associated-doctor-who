@@ -36,12 +36,12 @@ class Player:
     def play_game(self):
         while self.points > 0:
             self.take_turn()
-            if self.guesses[-1].get_name() == self.target.get_name():
+            if self.guesses[-1].get_name() == self.target.title:
                 print("Congratulations! You guessed the story correctly!")
                 break
         if self.points <= 0:
             print("Game over! You've run out of points.")
-            print("The correct story was:", self.target.get_name())
+            print("The correct story was:", self.target.title)
 
 player = Player()
 player.play_game()
