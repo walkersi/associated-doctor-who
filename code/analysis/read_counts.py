@@ -13,4 +13,3 @@ def load_counts(file=OUTPUT_FILE_DEFAULT):
     if not count_dict:
         LOGGER.warn(f"Couldn't load counts file {file}, possible schema version mismatch")
     return count_dict
-    
