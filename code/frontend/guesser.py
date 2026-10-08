@@ -3,23 +3,37 @@ from frontend.compare_stories import compare_stories, compute_similarity, find_s
 from datasets.story_loader import load_stories
 import random
 
+class Guess:
+    def __init__(self, guessed_story: Story, score: float, shared_attributes):
+        self.guessed_story = guessed_story
+        self.score = score
+        self.shared_attributes = shared_attributes
+
+    def get_guessed_story(self):
+        return self.guessed_story
+
+    def get_score(self):
+        return self.score
+
+    def get_best_attribute(self):
+        return self.best_attribute
+
+    def get_name(self):
+        return self.guessed_story.get_name()
+
 def guess_story(target: Story):
 
-    best_score = 0
-    best_guess = None
     stories = load_stories()
-    guess = None
-    while guess is None or guess.get_name() != target.get_name():
-        error = True
-        while error:
-            guess = find_story(stories, input("Enter a story to guess: "))
-            if guess is None:
-                print("Story not found. Please try again.")
-            else:
-                error = False
-        overlapping_attributes = compare_stories(target, guess)
-        score, best_attribute = compute_similarity(overlapping_attributes)
-        print("Similarity score:", score)
-    print("You guessed the story!")
-
-guess_story(random.choice(load_stories()))
+    error = True
+    while error:
+        guess = find_story(stories, input("Enter a story to guess: "))
+        if guess is None:
+            print("Story not found. Please try again.")
+        else:
+            error = False
+            guess = Guess(guess, 0, None)
+    overlapping_attributes = compare_stories(target, guess.get_guessed_story())
+    score, attributes = compute_similarity(overlapping_attributes)
+    guess.shared_attributes = attributes
+    guess.score = score
+    return guess

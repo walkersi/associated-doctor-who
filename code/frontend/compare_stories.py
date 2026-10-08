@@ -45,7 +45,7 @@ def compute_similarity(overlapping_attributes):
     #print(overlapping_attributes)
     counts = load_counts()
     similarity_score = 0
-    highest_score = (None, 0)
+    all_scores = []
     for key in overlapping_attributes:
         for attribute in overlapping_attributes[key]:
             # the more common an attribute is, the less it contributes to the similarity score
@@ -56,9 +56,8 @@ def compute_similarity(overlapping_attributes):
                 base = 0.95
                 adding_score = base ** counts[key][attribute]
             similarity_score += adding_score
-            if adding_score > highest_score[1]:
-                highest_score = (attribute, adding_score)
-    return similarity_score, highest_score
+            all_scores.append((key, attribute, adding_score))
+    return similarity_score, all_scores
 
 def compare_random_stories():
     stories = load_stories()
