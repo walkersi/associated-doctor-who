@@ -18,7 +18,7 @@ class Guess:
         return self.shared_attributes
 
     def get_name(self):
-        return self.guessed_story.name
+        return self.guessed_story.title
 
 def guess_story(target: Story):
 
