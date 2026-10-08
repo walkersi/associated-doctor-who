@@ -1,7 +1,6 @@
 from tardis.tardis_types import Story
 from frontend.compare_stories import compare_stories, compute_similarity, find_story
 from datasets.story_loader import load_stories
-import random
 
 class Guess:
     def __init__(self, guessed_story: Story, score: float, shared_attributes):

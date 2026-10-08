@@ -1,4 +1,3 @@
-from tardis.tardis_types import Story
 from datasets.story_loader import load_stories
 from frontend.guesser import guess_story
 import random
