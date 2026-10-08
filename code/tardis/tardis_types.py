@@ -2,12 +2,14 @@ from dataclasses import dataclass
 from enum import Enum
 
 
-# represents shows -> these are NOT from the tardis guide API
-NEW_WHO = "new-who"
-CLASSIC = "classic-who"
-TORCHWOOD = "torchwood"
-SARAH_JANE_ADVENTURES = "sja"
-CLASS = "class"
+# enum container to represent shows -> these are NOT from the tardis guide API
+class Show:
+    NEW_WHO = "new-who"
+    CLASSIC = "classic-who"
+    TORCHWOOD = "torchwood"
+    SARAH_JANE_ADVENTURES = "sja"
+    CLASS = "class"
+    WAR_BETWEEN = "twatblast"
 
 # represents an object whose attribute names are semantically meaningful
 class DictLike:
@@ -50,6 +52,6 @@ class Story(DictLike):
     characters: list[str]
     locations: list[str]
     time_travel: list[str]
-    show: str = NEW_WHO # where the string is a value of Show
+    show: str = Show.NEW_WHO # where the string is a value of Show
 
     
