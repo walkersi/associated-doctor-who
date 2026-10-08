@@ -54,10 +54,10 @@ class Counter:
         # go through every object
         for object in self.objects:
             for getter in self.getters:
+                # collect this attributes values
                 name = getter.name
                 values = getter.get(object)
-                for value in values:
-                    self.attributes[name].append(value)
+                self.attributes[name] += values
 
     # processes counted attributes into dict of their discrete totals
     def count_attributes(self):
