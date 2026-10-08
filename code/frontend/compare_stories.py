@@ -1,38 +1,30 @@
 from datasets.story_loader import load_stories
 from tardis.tardis_types import Story
-from analysis.counter import NamedLookup
 from analysis.read_counts import load_counts
-import math
 import random
 
-def compare_stories(target_story: Story, current_story: Story):
-    # find the attributes for each story
-    counting_attributes = [
-        NamedLookup("name", lambda s: s.get_name()),
-        NamedLookup("locations", lambda s: s.get_locations()),
-        NamedLookup("tropes", lambda s: s.get_tropes()),
-        NamedLookup("characters", lambda s: s.get_characters()),
-        NamedLookup("writers", lambda s: s.get_writers()),
-    ]
-    target_attributes = get_attributes(target_story, counting_attributes)
-    current_attributes = get_attributes(current_story, counting_attributes)
+def compare_stories(target_story: Story, current_story: Story) -> dict[str, set]:
+    # find the attributes for each story, ignoring these
+    ignore_fields = ["title", "slug", "show"] # note: these should match attrib names in Story
+    # predicate for keeping only comparable fields
+    required_only = lambda name, _: name not in ignore_fields
 
-    # find overlapping attributes
+    target_attributes = target_story.get_attribute_subset(predicate=required_only)
+    current_attributes = current_story.get_attribute_subset(predicate=required_only)
+
+    # find overlapping values per field
     overlapping_attributes = {}
     for key in target_attributes:
-        if key != "name": # we don't care about name overlapping
-            overlapping_attributes[key] = []
-            if key in current_attributes:
-                for attribute in target_attributes[key]:
-                    if attribute in current_attributes[key]:
-                        overlapping_attributes[key].append(attribute)
+        # if one of the stories has a different schema, skip incongruent attributes
+        if key not in current_attributes:
+            continue
+        # extract the set of slugs that this attribute contains
+        target_attribute = set(target_attributes[key])
+        current_attribute = set(current_attributes[key])
+        # set intersection is the overlap
+        overlapping_attributes[key] = current_attribute.intersection(target_attribute)
+  
     return overlapping_attributes
-
-def get_attributes(story: Story, counting_attributes: list[NamedLookup]):
-    attributes = {}
-    for getter in counting_attributes:
-        attributes[getter.name] = getter.get(story)
-    return attributes
 
 # find story object by slug
 def find_story(stories: list[Story], story_slug: str):
@@ -51,7 +43,7 @@ def compute_similarity(overlapping_attributes):
         for attribute in overlapping_attributes[key]:
             # the more common an attribute is, the less it contributes to the similarity score
             # tropes scale faster than other attributes as they tend to be less meaningful
-            if key == "trope": 
+            if key == "tropes": 
                 base = 0.8
             else:
                 base = 0.95
