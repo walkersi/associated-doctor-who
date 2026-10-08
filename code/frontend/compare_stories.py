@@ -1,6 +1,9 @@
 from datasets.story_loader import load_stories
 from tardis.tardis_types import Story
 from analysis.counter import NamedLookup
+from analysis.read_counts import load_counts
+import math
+import random
 
 def compare_stories(target_story: Story, current_story: Story):
     counting_attributes = [
@@ -20,7 +23,7 @@ def compare_stories(target_story: Story, current_story: Story):
                 for attribute in target_attributes[key]:
                     if attribute in current_attributes[key]:
                         overlapping_attributes[key].append(attribute)
-    print(overlapping_attributes)
+    return overlapping_attributes
 
 def get_attributes(story: Story, counting_attributes: list[NamedLookup]):
     attributes = {}
@@ -34,5 +37,20 @@ def find_story(stories: list[Story], story_slug: str):
             return story
     return None
 
-stories = load_stories()
-compare_stories(find_story(stories, "silence-in-the-library"), find_story(stories, "forest-of-the-dead"))
+def compute_similarity(overlapping_attributes):
+    print(overlapping_attributes)
+    counts = load_counts()
+    similarity_score = 0
+    for key in overlapping_attributes:
+        for attribute in overlapping_attributes[key]:
+            similarity_score += (5 - math.log(counts[key][attribute]))
+    return similarity_score
+
+def compare_random_stories():
+    stories = load_stories()
+    story1 = random.choice(stories)
+    story2 = random.choice(stories)
+    print(story1.get_name(), "vs", story2.get_name())
+    print(compute_similarity(compare_stories(story1, story2)))
+
+#compare_random_stories()
