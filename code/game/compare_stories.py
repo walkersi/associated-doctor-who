@@ -6,7 +6,7 @@ import random
 def compare_stories(target_story: Story, current_story: Story) -> dict[str, set]:
     # find the attributes for each story, ignoring these
     # note: these should match attrib names in Story
-    ignore_fields = ["title", "slug", "show"]
+    ignore_fields = ["title", "slug", "show", "cast"]
     # predicate for keeping only comparable fields
     required_only = lambda name, _: name not in ignore_fields
     # get comparable fields
