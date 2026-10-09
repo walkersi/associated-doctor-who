@@ -2,6 +2,7 @@ from game.guesser import guess_story
 import random
 from datasets.story_loader import load_stories
 from tardis.tardis_types import Show
+from game.compare_stories import compute_similarity, compare_stories
 
 class Game:
     def __init__(self):
@@ -9,6 +10,7 @@ class Game:
         self.guesses = []
         self.stories = [s for s in load_stories() if s.show in [Show.NEW_WHO]]
         self.target = random.choice(self.stories)
+        self.target_score = compute_similarity(compare_stories(self.target, self.target))[0]
 
     def get_points(self):
         return self.points
@@ -23,7 +25,8 @@ class Game:
         self.points -= points
 
     def display_score(self):
-        print("Similarity score:", self.guesses[-1].get_score())
+        percentage_score = self.guesses[-1].get_score() / self.target_score * 100
+        print("Similarity score:", percentage_score)
     
     def guess(self):
         guess = guess_story(self.target, self)

@@ -45,9 +45,10 @@ def compute_similarity(overlapping_attributes: dict[str, set]):
             # the more common an attribute is, the less it contributes to the similarity score
             # tropes scale faster than other attributes as they tend to be less meaningful
             base = 0.8 if key == "tropes" else 0.95
-            # TODO comment this stuff how does it work i like it but i am tired my love
-            adding_score = base ** counts[key][attribute]
+            # the adding score is a base to the power of the number of times an attribute appears across the dataset
+            adding_score = base ** counts[key][attribute] 
             similarity_score += adding_score
+            # the attribute and how much of the similarity score it contributed is kept track of, for every attribute per guess
             all_scores[key].append((attribute, adding_score))
     return similarity_score, all_scores
 
