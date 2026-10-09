@@ -34,7 +34,7 @@ def find_story(stories: list[Story], story_slug: str):
             return story
     return None
 
-def compute_similarity(overlapping_attributes):
+def compute_similarity(overlapping_attributes: dict[str, set]):
     #print(overlapping_attributes)
     counts = load_counts()
     similarity_score = 0
