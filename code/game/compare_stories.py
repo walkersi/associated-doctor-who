@@ -42,10 +42,20 @@ def compute_similarity(overlapping_attributes: dict[str, set]):
     for key in overlapping_attributes:
         all_scores[key] = []
         for attribute in overlapping_attributes[key]:
-            # the more common an attribute is, the less it contributes to the similarity score
-            # tropes scale faster than other attributes as they tend to be less meaningful
-            base = 0.8 if key == "tropes" else 0.95
+            match key:
+                # tropes scale faster than other attributes as they tend to be less meaningful
+                case "tropes":
+                    base = 0.8
+                # There are not many time travel options, so it should scale slowly.
+                case "time_travel":
+                    base = 0.99
+                # show doesn't scale at all - it will always contribute significantly
+                case "show":
+                    base = 1
+                case _:
+                    base = 0.95
             # the adding score is a base to the power of the number of times an attribute appears across the dataset
+            # the more common an attribute is, the less it contributes to the similarity score
             adding_score = base ** counts[key][attribute] 
             similarity_score += adding_score
             # the attribute and how much of the similarity score it contributed is kept track of, for every attribute per guess
