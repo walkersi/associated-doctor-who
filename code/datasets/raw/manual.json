@@ -1,0 +1,30 @@
+{
+    "add": {
+        "42": {
+            "writers": "Wanker"
+        },
+        "&christmas_specials": {
+            "_slugs": ["the-daleks-master-plan", "the-christmas-invasion", "the-runaway-bride",
+                        "voyage_of_the_damned", "the-next-doctor", "the-end-of-time-part-one",
+                    "a-christmas-carol", "the-doctor-the-widow-and-the-wardrobe", "the-snowmen", 
+                    "the-time-of-the-doctor", "last-christmas", "the-husbands-of-river-song",
+                "the-return-of-doctor-mysterio", "twice-upon-a-time", "the-church-on-ruby-road",
+                "joy-to-the-world"],
+            "tropes": "christmas"
+        },
+        "&new_years_specials": {
+            "_slugs": ["revolution-of-the-daleks", "resolution", "eve-of-the-daleks"],
+            "tropes": "new-year"
+        }
+
+    },
+    "remove": {
+        "42": {
+            "writers": "Chris Chibnall",
+            "actors": "david-tennant"
+        },
+        "*": {
+            "time_travel": "unclear"
+        }
+    }
+}

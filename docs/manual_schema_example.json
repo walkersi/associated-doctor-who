@@ -1,0 +1,20 @@
+{
+    "add": {
+        "slug": {
+            "field": "",
+            "field2": ["", ""]
+        },
+        "&specific-group": {
+            "_slugs": [],
+            "field1": ["", "", ""]
+        }
+    },
+    "remove": {
+        "slug": {
+            "field": ""
+        },
+        "*": {
+            "field": ["", ""]
+        }
+    }
+}
