@@ -86,7 +86,7 @@ def should_keep_record(record: dict):
     # classic except telesnap reconstructions
     classic_who_filter = (
         {MEDIA: "TV", RANGE: "Doctor Who", SERIES: ["Classic"], TITLE: "Reconstruction"},
-        {SERIES: start_with_any_of, TITLE: does_not_end_with}
+        {SERIES: start_with_any_of, TITLE: does_not_contain}
     )
     # torchwood/sja/class, except Alien Files
     major_spin_off_filter = (
