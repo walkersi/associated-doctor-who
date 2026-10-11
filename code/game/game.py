@@ -29,9 +29,9 @@ class Game:
             count = 0
             for g in self.guesses:
                 if guess.get_score() > g.get_score():
-                    self.guesses.insert(count, guess)
                     break
                 count += 1
+            self.guesses.insert(count, guess)
         self.most_recent_guess = guess
     
     def deduct_points(self, points):
