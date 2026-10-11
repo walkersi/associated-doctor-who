@@ -11,6 +11,7 @@ class Game:
         self.guesses = []
         self.most_recent_guess = None
         self.stories = [s for s in load_stories() if s.show in [Show.NEW_WHO]]
+        self.already_hinted = []
         self.target = random.choice(self.stories)
         self.target_score = compute_similarity(compare_stories(self.target, self.target))[0]
 
@@ -57,13 +58,14 @@ class Game:
         # find the shared attribute with the highest score 
         for key in attributes:
             for attribute in attributes[key]:
-                if attribute[1] > highest[2]:
+                if attribute[1] > highest[2] and attribute[0] not in self.already_hinted:
                     # save the key (like "Character"), the specific attribute (like "Clara Oswald") and the score.
                     highest = (key, attribute[0], attribute[1])
         if highest[2] == 0:
-            print(f"There are no similarities between {guess.get_name()} and the target story!")
+            print(f"There are no similarities (that you haven't already hinted) between {guess.get_name()} and the target story!")
         else:
-            print(f"{highest[0]}: {highest[1]} is the most unique feature shared by {guess.get_name()} and the target story!")
+            print(f"{highest[0]}: {highest[1]} is the most unique feature (that you haven't already hinted) shared by {guess.get_name()} and the target story!")
+            self.already_hinted.append(highest[1])
 
     
     def guess(self):
