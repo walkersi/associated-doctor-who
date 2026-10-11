@@ -5,6 +5,7 @@ from tardis.tardis_types import Story, Show
 from api.logger import Logger, Level, Type
 from dataclasses import dataclass
 from datasets.os_utils import create_nested_directory
+from datasets.manual_hinting import add_hints
 
 # code for automatically gathering rich texts for all of a certain 
 # story type from the local csv source
@@ -163,6 +164,11 @@ def main():
         stories.append(story)
     
     LOGGER.info("Created story objects, n=", len(stories))
+
+    # apply manual hinting to them
+    add_hints(stories)
+
+    LOGGER.info("Applied manual hints")
 
     # make sure the target path exists
     create_nested_directory(OUTPUT_PATH)
