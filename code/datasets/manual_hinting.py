@@ -4,7 +4,7 @@
 from tardis.tardis_types import Story
 from datasets.serialise import deserialise_from_file
 
-MANUAL_FILE_PATH = "raw/manual.json"
+MANUAL_FILE_PATH = "datasets/raw/manual.json"
 ADD_VALUES = "add"
 REMOVE_VALUES = "remove"
 ANY_SELECTOR = "*"
@@ -16,13 +16,13 @@ def slug_map(stories: list[Story]):
     slugs_to_stories = {}
     for story in stories:
         slug = story.slug
-        assert slug in slugs_to_stories, f"Duplicate slug {slug} detected in preprocessed stories"
-        slugs_to_stories[story] = story
+        assert not slug in slugs_to_stories, f"Duplicate slug {slug} detected in preprocessed stories"
+        slugs_to_stories[slug] = story
     return slugs_to_stories
 
 # returns true if slug written in file is a valid selector (e.g. a slug, or *)
 def valid_slug(slug: str, story_map: dict[str, Story]):
-    return slug in story_map or slug in [ANY_SELECTOR, SUBSET_SELECTOR]
+    return slug in story_map or slug == ANY_SELECTOR or slug.startswith(SUBSET_SELECTOR)
 
 # a rule that matches the overall operation (e.g. 'add') with a function
 # that describes what to do with the values to (add) to attribute
@@ -47,7 +47,7 @@ def apply_rule(rule: Rule, manual: dict, stories: list[Story], story_map: dict[s
         assert valid_slug(slug, story_map), f"Slug {slug} from manual file is invalid"
         # check validity of slug fields
         for field in slugs[slug]:
-            assert schema_sample.has_attribute(field) or field == SLUGS_SUBSET, f"Field {field} does not exist in Story schema"
+            assert (schema_sample.has_attribute(field) or field == SLUGS_SUBSET), f"Field {field} does not exist in Story schema"
 
     # process each slug
     for slug in slugs:
@@ -59,15 +59,15 @@ def apply_rule(rule: Rule, manual: dict, stories: list[Story], story_map: dict[s
             selected_stories = []
             for actual_slug in slugs[slug][SLUGS_SUBSET]:
                 assert actual_slug in story_map, f"Slug {actual_slug} not found"
-                selected_stories.append([story_map[actual_slug]])
+                selected_stories.append(story_map[actual_slug])
             # remove the subset group so it doesn't get picked up as a field
             del slugs[slug][SLUGS_SUBSET]
         else:
-            selected_stories = story_map[slug]
+            selected_stories = [story_map[slug]]
         
         # every field gets updated with set values
-        for field in slug[slugs]:
-            values = slug[slugs][field]
+        for field in slugs[slug]:
+            values = slugs[slug][field]
             # apply rule to every story that matches selector
             for story in selected_stories:
                 attribute = story.get_attribute_by_name(field)
