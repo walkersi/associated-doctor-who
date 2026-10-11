@@ -9,7 +9,7 @@
     "api_cache_dump": "api/cache/api",
     "api_cache_separator": ":",
     "logger_mode": "developer",
-    "_comment": "6-days / 2-days / Weekly / cache renewal",
+    "_comment": "6-days / 4-days / Weekly / cache renewal",
     "cache": [
         {
             "endpoint": "^stories",
@@ -17,7 +17,7 @@
         },
         {
             "endpoint": "^story/.*",
-            "expiry_seconds": 172800
+            "expiry_seconds": 345600
         },
         {
             "endpoint": ".*",
