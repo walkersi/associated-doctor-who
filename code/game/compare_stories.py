@@ -34,10 +34,8 @@ def find_story(stories: list[Story], story_slug: str):
             return story
     return None
 
-def compute_similarity(overlapping_attributes: dict[str, set]):
+def compute_similarity(overlapping_attributes: dict[str, set], counts, shows):
     #print(overlapping_attributes)
-    counts = load_counts() # TODO HOLLY YOU ARE CALLING THIS EVERY GUESS, THIS DOES I/O
-    # thanks for all the comments though, nice job i approve
     similarity_score = 0
     all_scores = {}
     for key in overlapping_attributes:
@@ -57,11 +55,22 @@ def compute_similarity(overlapping_attributes: dict[str, set]):
                     base = 0.95
             # the adding score is a base to the power of the number of times an attribute appears across the dataset
             # the more common an attribute is, the less it contributes to the similarity score
-            adding_score = base ** counts[key][attribute] 
+            adding_score = base ** find_true_count(counts, shows, key, attribute)
             similarity_score += adding_score
             # the attribute and how much of the similarity score it contributed is kept track of, for every attribute per guess
             all_scores[key].append((attribute, adding_score))
     return similarity_score, all_scores
+
+def find_true_count(counts, allowed_shows, key, attribute):
+    # add up the count across all shows
+    total = 0
+    for show in allowed_shows:
+        # some writers or characters won't appear in certain shows, so ignore them
+        try:
+            total += counts[show][key][attribute] 
+        except:
+            total += 0
+    return total
 
 def compare_random_stories():
     stories = load_stories()

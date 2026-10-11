@@ -4,16 +4,19 @@ from datasets.story_loader import load_stories
 from tardis.tardis_types import Show
 from game.compare_stories import compute_similarity, compare_stories
 from game.guesser import Guess
+from analysis.read_counts import load_counts
 
 class Game:
     def __init__(self):
-        self.points = 20
+        self.points = 100
         self.guesses = []
+        self.counts = load_counts()
         self.most_recent_guess = None
-        self.stories = [s for s in load_stories() if s.show in [Show.NEW_WHO]]
+        self.shows = [Show.NEW_WHO, Show. CLASSIC]
+        self.stories = [s for s in load_stories() if s.show in self.shows]
         self.already_hinted = []
         self.target = random.choice(self.stories)
-        self.target_score = compute_similarity(compare_stories(self.target, self.target))[0]
+        self.target_score = compute_similarity(compare_stories(self.target, self.target), self.counts, self.shows)[0]
 
     def get_points(self):
         return self.points
