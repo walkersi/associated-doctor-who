@@ -37,7 +37,14 @@ class DictLike:
                 subset[name] = value
 
         return subset
+
+    def has_attribute(self, name):
+        return name in self.__dict__
+
+    def get_attribute_by_name(self, name):
+        return self.__dict__[name]
         
+
 
 
 # application-relevant representation of storys from tardisguide database
