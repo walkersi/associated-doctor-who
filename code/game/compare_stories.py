@@ -36,7 +36,8 @@ def find_story(stories: list[Story], story_slug: str):
 
 def compute_similarity(overlapping_attributes: dict[str, set]):
     #print(overlapping_attributes)
-    counts = load_counts()
+    counts = load_counts() # TODO HOLLY YOU ARE CALLING THIS EVERY GUESS, THIS DOES I/O
+    # thanks for all the comments though, nice job i approve
     similarity_score = 0
     all_scores = {}
     for key in overlapping_attributes:
