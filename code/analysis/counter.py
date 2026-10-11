@@ -1,6 +1,7 @@
 from datasets.story_loader import load_stories
 from datasets.os_utils import create_nested_directory
 from datasets.serialise import serialise_to_file
+from api.logger import Logger, Level, Type
 
 #
 # classes for performing counting operations over the attributes of multiple
@@ -11,6 +12,8 @@ OUTPUT_PATH = "analysis/counts/"
 OUTPUT_FILE_DEFAULT = "counts"
 SCHEMA_VERSION = "v1.0.4" # v1.0.3 supports pretty printing; v1.0.4 supports classed grouping
 DEFAULT_PARENT_CLASSIFICATION = ""
+
+LOGGER = Logger(Type.INFO, Level.DEVELOPER)
 
 # for some specified object type, get a property
 # using a function if form f(object) -> attribute
@@ -102,15 +105,19 @@ class Counter:
 
 def main():
 
+    LOGGER.info("Counter recovering stories from disk")
     # load the stories from disk and count the fields
     stories = load_stories()
     # check the current schema of the story object
     sample = stories[0]
     # define which attributes to count and how to retrieve their values
     # only count attributes whose values are lists.
+    LOGGER.info("Initialising count criteria")
     attributes = sample.get_attribute_names(predicate = lambda _, v: isinstance(v, list))
     counting_attributes = [NamedLookup(attribute) for attribute in attributes]
+    LOGGER.info("Beginning count")
     Counter(stories, counting_attributes, field_parent_getter=NamedLookup("show")).process_dataset()
+    LOGGER.info("Finished attribute-value count and written to disk")
 
 if __name__=='__main__':
     main()
