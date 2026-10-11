@@ -1,11 +1,8 @@
 {
     "add": {
-        "42": {
-            "writers": "Wanker"
-        },
         "&christmas_specials": {
             "_slugs": ["the-daleks-master-plan", "the-christmas-invasion", "the-runaway-bride",
-                        "voyage_of_the_damned", "the-next-doctor", "the-end-of-time-part-one",
+                        "voyage-of-the-damned", "the-next-doctor", "the-end-of-time-part-1",
                     "a-christmas-carol", "the-doctor-the-widow-and-the-wardrobe", "the-snowmen", 
                     "the-time-of-the-doctor", "last-christmas", "the-husbands-of-river-song",
                 "the-return-of-doctor-mysterio", "twice-upon-a-time", "the-church-on-ruby-road",
@@ -19,10 +16,6 @@
 
     },
     "remove": {
-        "42": {
-            "writers": "Chris Chibnall",
-            "actors": "david-tennant"
-        },
         "*": {
             "time_travel": "unclear"
         }
