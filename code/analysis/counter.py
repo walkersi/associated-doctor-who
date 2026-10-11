@@ -9,7 +9,8 @@ from datasets.serialise import serialise_to_file
 
 OUTPUT_PATH = "analysis/counts/"
 OUTPUT_FILE_DEFAULT = "counts"
-SCHEMA_VERSION = "v1.0.2" # v1.0.2 supports a more generalised schema counter
+SCHEMA_VERSION = "v1.0.4" # v1.0.3 supports pretty printing; v1.0.4 supports classed grouping
+DEFAULT_PARENT_CLASSIFICATION = ""
 
 # for some specified object type, get a property
 # using a function if form f(object) -> attribute
@@ -36,45 +37,62 @@ class Counter:
     # and fields are getter functions to retrieve attribute values
     # where each getter returns a list of something comparable for equality, e.g. [str]
     #   they should also be serialisable things
-    def __init__(self, objects: list[object], field_getters: list[NamedLookup]):
+    # field_parent_getter is for classifying objects by class, should return a value representing group (or be None)
+    def __init__(self, objects: list[object], field_getters: list[NamedLookup], field_parent_getter: NamedLookup = None):
         self.objects = objects
         self.getters = field_getters
+        # used to decide which sub-count to group by
+        self.field_parent_getter = field_parent_getter 
+        if not field_parent_getter:
+            self.field_parent_getter = NamedLookup("", lambda _: DEFAULT_PARENT_CLASSIFICATION) # group arbitrarily
         # map aliased fields to a collection of every single value (inc duplicates)
         self.attributes = {}
-        # map alias fields to dictionaries of their discrete values mapped to number
+        # map class' alias fields to dictionaries of their discrete values mapped to number
         # of occurrences in objects dataset
         self.counts = {}
-        for getter in self.getters:
-            self.attributes[getter.name] = []
-            self.counts[getter.name] = {}
+        self.attributes = {}
 
     # scan list of objects (e.g. all stories) and acquire all the values that
     # appear in the list
     def scan_dataset(self):
         # go through every object
         for object in self.objects:
+            # check the general class of this object
+            object_class = self.field_parent_getter.get(object)
+            if object_class not in self.attributes:
+                self.attributes[object_class] = {}
+            
             for getter in self.getters:
                 # collect this attributes values
                 name = getter.name
                 values = getter.get(object)
-                self.attributes[name] += values
+                if name not in self.attributes[object_class]:
+                    self.attributes[object_class][name] = []
+                self.attributes[object_class][name] += values
 
     # processes counted attributes into dict of their discrete totals
     def count_attributes(self):
-        for category, items in self.attributes.items():
-            for item in items:
-                if item not in self.counts[category]:
-                    self.counts[category][item] = 1
-                else:
-                    self.counts[category][item] += 1
+        for object_class, categories in self.attributes.items():
+            self.counts[object_class] = {}
+            for category, items in categories.items():
+                if category not in self.counts[object_class]:
+                    self.counts[object_class][category] = {}
+                for item in items:
+                    if item not in self.counts[object_class][category]:
+                        self.counts[object_class][category][item] = 1
+                    else:
+                        self.counts[object_class][category][item] += 1
 
     def write_to_file(self, file_name):
         # serialise the counts dictionary and write it to the given file
+        # if counts are ungrouped, write the nested entries instead
+        if len(self.counts) == 1 and DEFAULT_PARENT_CLASSIFICATION in self.counts:
+            self.counts = self.counts[DEFAULT_PARENT_CLASSIFICATION]
         # make the output path if it does not exist
         create_nested_directory(OUTPUT_PATH)
         # create file path
         path = f"{OUTPUT_PATH}/{file_name}.{SCHEMA_VERSION}.json"
-        serialise_to_file(self.counts, path)
+        serialise_to_file(self.counts, path, pretty=True)
 
     # run full counter pipeline
     def process_dataset(self, output_file=OUTPUT_FILE_DEFAULT):
@@ -92,7 +110,7 @@ def main():
     # only count attributes whose values are lists.
     attributes = sample.get_attribute_names(predicate = lambda _, v: isinstance(v, list))
     counting_attributes = [NamedLookup(attribute) for attribute in attributes]
-    Counter(stories, counting_attributes).process_dataset()
+    Counter(stories, counting_attributes, field_parent_getter=NamedLookup("show")).process_dataset()
 
 if __name__=='__main__':
     main()

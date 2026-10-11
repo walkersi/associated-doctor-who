@@ -12,4 +12,6 @@ def load_counts(file=OUTPUT_FILE_DEFAULT):
     count_dict = deserialise_from_file(file_name, dict)
     if not count_dict:
         LOGGER.warn(f"Couldn't load counts file {file}, possible schema version mismatch")
+    else:
+        LOGGER.info(f"Loaded counts file {file} successfully")
     return count_dict
