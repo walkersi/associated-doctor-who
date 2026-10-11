@@ -3,6 +3,16 @@ from datasets.serialise import deserialise_from_file
 from datasets.story_preprocessor import OUTPUT_PATH as INPUT_PATH
 from datasets.story_preprocessor import SCHEMA_VERSION, LOGGER
 from datasets.os_utils import get_all_files_in_directory
+from os import remove
+import sys
+
+# clear preprocessed stories whose versions (schema) are out of date
+def audit_preprocessor_cache(directory: str=INPUT_PATH):
+    files = get_all_files_in_directory(directory)
+    # filter for out of date files
+    json_files = filter(lambda f: f.endswith("json") and SCHEMA_VERSION not in f, files)
+    for file in json_files:
+        remove(directory+file)
 
 def load_story(story_file: str):
     if story_file.endswith(f".{SCHEMA_VERSION}.json"):
@@ -26,3 +36,23 @@ def load_stories(directory: str=INPUT_PATH) -> list[Story]:
             LOGGER.warn("Couldn't read story from", file, ", skipped")
 
     return stories
+
+
+def main():
+    # load or cleanup dependning on arg
+    if len(sys.argv) != 2:
+        print("Invalid arguments, should be cleanup or load")
+        sys.exit(1)
+    if sys.argv[1] == "cleanup":
+        audit_preprocessor_cache()
+        return
+    elif sys.argv[1] == "load":
+        load_stories()
+        return
+    else:
+        print("Invalid arguments, should be cleanup or load")
+        sys.exit(0)
+
+
+if __name__=='__main__':
+    main()
