@@ -13,8 +13,9 @@ from datasets.os_utils import create_nested_directory
 # --> story filenames in format "[output path]/episode-slug.VERSION.json"
 
 OUTPUT_PATH = "datasets/processed/stories/"
-SCHEMA_VERSION = "v1.0.3" # v1.0.1 supports time_travel in schema, 
+SCHEMA_VERSION = "v1.0.4" # v1.0.1 supports time_travel in schema, 
 #  v1.0.3 supports full multi-show categorisation
+# v1.0.4 filters out reconstructions properly
 # logger for this part of the system
 LOGGER = Logger(type=Type.INFO, level=Level.DEVELOPER)
 
