@@ -2,7 +2,7 @@ from datasets.story_loader import load_stories
 from tardis.tardis_types import Story, Show
 import random
 
-def compare_stories(target_story: Story, current_story: Story, shows) -> dict[str, set]:
+def compare_stories(target_story: Story, current_story: Story, game) -> dict[str, set]:
     # find the attributes for each story, ignoring these
     # note: these should match attrib names in Story
     ignore_fields = ["title", "slug", "show", "cast"]
@@ -13,7 +13,7 @@ def compare_stories(target_story: Story, current_story: Story, shows) -> dict[st
     current_attributes = current_story.get_attribute_subset(predicate=required_only)
 
     # find overlapping values per field
-    overlapping_attributes = {"show": compare_show(target_story, current_story, shows)}
+    overlapping_attributes = {"show": compare_show(target_story, current_story, game.shows, game.counts)}
     for key in target_attributes:
         # if one of the stories has a different schema, skip incongruent attributes
         if key not in current_attributes:
@@ -60,7 +60,7 @@ def compute_similarity(overlapping_attributes: dict[str, set], counts, shows):
             all_scores[key].append((attribute, adding_score))
     return similarity_score, all_scores
 
-def compare_show(target_story, current_story, shows):
+def compare_show(target_story, current_story, shows, counts):
 
     # if there's only one show, it shouldn't add to the similarity score
     if len(shows) == 1:
@@ -68,19 +68,22 @@ def compare_show(target_story, current_story, shows):
     else:
         t_show = target_story.show
         c_show = current_story.show 
-        # if there's more than one show, return 1 for an identical match. Don't care about how frequent it is.
+        #TODO currently there is no way of actually telling how many stories belong to each show. sam my love please do that
+        # if there's more than one show, check if it's an identical match
         if t_show == c_show:
-            return {target_story.show: 1}
+            return {target_story.show: 0.99 ** len(counts[t_show])}
         # if there's exactly two shows and it's not a match, return 0. Similartiy between different shows doesn't matter.
         elif len(shows) == 2:
             return {"no match": 0}
         # after this point, there are more than two shows.
         # if one show is new who and one is classic, return 0.5 as they are both similar in terms of being mainline tv.
         elif set([t_show, c_show]) == set([Show.NEW_WHO, Show.CLASSIC]):
-            return {"tV": 0.5}
+            return {"tv": 0.99 ** (len(counts[t_show]) + len(counts[c_show]))}
         # if t_show and c_show are both spinoffs (a "subset" of the spinoff set) then return 0.7 
-        elif set([t_show, c_show]).issubset(set[Show.TORCHWOOD, Show.CLASS, Show.WAR_BETWEEN, Show.SARAH_JANE_ADVENTURES]):
-            return {"spinoff": 0.7}
+        elif set([t_show, c_show]).issubset({Show.TORCHWOOD, Show.CLASS, Show.WAR_BETWEEN, Show.SARAH_JANE_ADVENTURES}):
+            spinoff_counts = (len(counts[Show.TORCHWOOD]) + len(counts[Show.CLASS]) 
+                              + len(counts[Show.WAR_BETWEEN]) + len(counts[Show.SARAH_JANE_ADVENTURES]))
+            return {"spinoff": 0.99 ** spinoff_counts}
         else: 
             return {"no match": 0}
 
