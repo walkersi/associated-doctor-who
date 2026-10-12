@@ -1,6 +1,5 @@
 from datasets.story_loader import load_stories
 from tardis.tardis_types import Story
-from analysis.read_counts import load_counts
 import random
 
 def compare_stories(target_story: Story, current_story: Story) -> dict[str, set]:
