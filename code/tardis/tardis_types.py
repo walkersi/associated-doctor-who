@@ -59,6 +59,6 @@ class Story(DictLike):
     characters: list[str]
     locations: list[str]
     time_travel: list[str]
-    show: str = Show.NEW_WHO # where the string is a value of Show
+    show: str # where the string is a value of Show
 
     

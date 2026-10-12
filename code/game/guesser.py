@@ -30,7 +30,7 @@ def guess_story(target: Story, game):
         else:
             error = False
             guess = Guess(guess, 0, None)
-    overlapping_attributes = compare_stories(target, guess.get_guessed_story())
+    overlapping_attributes = compare_stories(target, guess.get_guessed_story(), game.shows)
     score, attributes = compute_similarity(overlapping_attributes, game.counts, game.shows)
     guess.shared_attributes = attributes
     guess.score = score

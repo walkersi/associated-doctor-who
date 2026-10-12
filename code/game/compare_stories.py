@@ -1,8 +1,8 @@
 from datasets.story_loader import load_stories
-from tardis.tardis_types import Story
+from tardis.tardis_types import Story, Show
 import random
 
-def compare_stories(target_story: Story, current_story: Story) -> dict[str, set]:
+def compare_stories(target_story: Story, current_story: Story, shows) -> dict[str, set]:
     # find the attributes for each story, ignoring these
     # note: these should match attrib names in Story
     ignore_fields = ["title", "slug", "show", "cast"]
@@ -13,7 +13,7 @@ def compare_stories(target_story: Story, current_story: Story) -> dict[str, set]
     current_attributes = current_story.get_attribute_subset(predicate=required_only)
 
     # find overlapping values per field
-    overlapping_attributes = {}
+    overlapping_attributes = {"show": compare_show(target_story, current_story, shows)}
     for key in target_attributes:
         # if one of the stories has a different schema, skip incongruent attributes
         if key not in current_attributes:
@@ -47,18 +47,42 @@ def compute_similarity(overlapping_attributes: dict[str, set], counts, shows):
                 # There are not many time travel options, so it should scale slowly.
                 case "time_travel":
                     base = 0.99
-                # show doesn't scale at all - it will always contribute significantly
                 case "show":
-                    base = 1
+                    adding_score = overlapping_attributes[key][attribute]
                 case _:
                     base = 0.95
             # the adding score is a base to the power of the number of times an attribute appears across the dataset
             # the more common an attribute is, the less it contributes to the similarity score
-            adding_score = base ** find_true_count(counts, shows, key, attribute)
+            if key != "show":
+                adding_score = base ** find_true_count(counts, shows, key, attribute)
             similarity_score += adding_score
             # the attribute and how much of the similarity score it contributed is kept track of, for every attribute per guess
             all_scores[key].append((attribute, adding_score))
     return similarity_score, all_scores
+
+def compare_show(target_story, current_story, shows):
+
+    # if there's only one show, it shouldn't add to the similarity score
+    if len(shows) == 1:
+        return {"no match": 0}
+    else:
+        t_show = target_story.show
+        c_show = current_story.show 
+        # if there's more than one show, return 1 for an identical match. Don't care about how frequent it is.
+        if t_show == c_show:
+            return {target_story.show: 1}
+        # if there's exactly two shows and it's not a match, return 0. Similartiy between different shows doesn't matter.
+        elif len(shows) == 2:
+            return {"no match": 0}
+        # after this point, there are more than two shows.
+        # if one show is new who and one is classic, return 0.5 as they are both similar in terms of being mainline tv.
+        elif set([t_show, c_show]) == set([Show.NEW_WHO, Show.CLASSIC]):
+            return {"tV": 0.5}
+        # if t_show and c_show are both spinoffs (a "subset" of the spinoff set) then return 0.7 
+        elif set([t_show, c_show]).issubset(set[Show.TORCHWOOD, Show.CLASS, Show.WAR_BETWEEN, Show.SARAH_JANE_ADVENTURES]):
+            return {"spinoff": 0.7}
+        else: 
+            return {"no match": 0}
 
 def find_true_count(counts, allowed_shows, key, attribute):
     # add up the count across all shows

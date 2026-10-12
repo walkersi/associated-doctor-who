@@ -12,11 +12,11 @@ class Game:
         self.guesses = []
         self.counts = load_counts()
         self.most_recent_guess = None
-        self.shows = [Show.NEW_WHO, Show. CLASSIC]
+        self.shows = [Show.NEW_WHO, Show.CLASSIC]
         self.stories = [s for s in load_stories() if s.show in self.shows]
         self.already_hinted = []
         self.target = random.choice(self.stories)
-        self.target_score = compute_similarity(compare_stories(self.target, self.target), self.counts, self.shows)[0]
+        self.target_score = compute_similarity(compare_stories(self.target, self.target, self.shows), self.counts, self.shows)[0]
 
     def get_points(self):
         return self.points
