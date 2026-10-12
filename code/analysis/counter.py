@@ -10,8 +10,9 @@ from api.logger import Logger, Level, Type
 
 OUTPUT_PATH = "analysis/counts/"
 OUTPUT_FILE_DEFAULT = "counts"
-SCHEMA_VERSION = "v1.0.4" # v1.0.3 supports pretty printing; v1.0.4 supports classed grouping
+SCHEMA_VERSION = "v1.0.5" # v1.0.4 supports classed grouping; v1.0.5 supports class count
 DEFAULT_PARENT_CLASSIFICATION = ""
+GROUP_COUNT_FIELD = "count"
 
 LOGGER = Logger(Type.INFO, Level.DEVELOPER)
 
@@ -63,7 +64,9 @@ class Counter:
             # check the general class of this object
             object_class = self.field_parent_getter.get(object)
             if object_class not in self.attributes:
-                self.attributes[object_class] = {}
+                self.attributes[object_class] = {GROUP_COUNT_FIELD: 0}
+            # increment the group counter (how many in this subset?)
+            self.attributes[object_class][GROUP_COUNT_FIELD] += 1
             
             for getter in self.getters:
                 # collect this attributes values
@@ -76,7 +79,9 @@ class Counter:
     # processes counted attributes into dict of their discrete totals
     def count_attributes(self):
         for object_class, categories in self.attributes.items():
-            self.counts[object_class] = {}
+            # transfer the group counter to the final output
+            total_in_class = self.attributes[object_class].pop(GROUP_COUNT_FIELD)
+            self.counts[object_class] = {GROUP_COUNT_FIELD: total_in_class}
             for category, items in categories.items():
                 if category not in self.counts[object_class]:
                     self.counts[object_class][category] = {}
