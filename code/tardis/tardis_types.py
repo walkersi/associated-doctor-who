@@ -10,6 +10,8 @@ class Show:
     SARAH_JANE_ADVENTURES = "sja"
     CLASS = "class"
     WAR_BETWEEN = "twatblast"
+    SPINOFFS = [CLASS, WAR_BETWEEN, SARAH_JANE_ADVENTURES, TORCHWOOD]
+    MAIN_SHOW = [NEW_WHO, CLASSIC]
 
 # represents an object whose attribute names are semantically meaningful
 class DictLike:
