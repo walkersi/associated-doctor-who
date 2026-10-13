@@ -3,9 +3,10 @@ from datasets.serialise import serialise_to_file
 from tardis.tardis_guide import TardisGuide
 from tardis.tardis_types import Story, Show
 from api.logger import Logger, Level, Type
-from dataclasses import dataclass
+from datasets.story_transients import StubStory, CategorisedRich
 from datasets.os_utils import create_nested_directory
 from datasets.manual_hinting import add_hints
+from datasets.slug_map import GeneratingSlugMap
 
 # code for automatically gathering rich texts for all of a certain 
 # story type from the local csv source
@@ -110,16 +111,6 @@ def should_keep_record(record: dict):
 
     return False
 
-@dataclass
-class StubStory: # a story before API hit
-    slug: str
-    show: str
-
-@dataclass
-class CategorisedRich: # an API response bundled with the CSV show categorisation
-    story: dict
-    show: str
-
 def load_all_stub_stories() -> list[StubStory]:
     records = data.open_csv_as_dict("datasets/raw/tardis-guide-everything.csv")
     records = map(reprocess_record, records)
@@ -129,13 +120,6 @@ def load_all_stub_stories() -> list[StubStory]:
 def save_story(story: Story):
     file_path = OUTPUT_PATH + story.slug + "." + SCHEMA_VERSION + ".json"
     serialise_to_file(story, file_path)
-
-# extracts slugs from grouped items with slugs (e.g. tropes)
-def extract(rich_story: str, field):
-    return extract_slugs_from_object_group(rich_story[field])
-
-def extract_slugs_from_object_group(group: str):
-    return [item["slug"] for item in group]
 
 
 def main():
@@ -150,20 +134,13 @@ def main():
     # disconnect from API
     guide.disconnect()
     # process the stories into application objects
-    stories = []
-    for categorised_rich in riches:
-        rich = categorised_rich.story
-        # turn each tardis guide API object into a Story
-        story = Story(rich["slug"], rich["title"], rich["writer"], 
-                      extract(rich, "tropes"), 
-                      extract(rich, "actors"),
-                      extract(rich, "characters"),
-                      extract(rich, "locations"),
-                      extract(rich, "time_travel"),
-                      show = categorised_rich.show)
-        stories.append(story)
+    stories = [rich.get_as_story() for rich in riches]
     
     LOGGER.info("Created story objects, n=", len(stories))
+
+    # create a map of slugs to localised names for easy lookup
+    slug_map = GeneratingSlugMap(riches)
+    slug_map.save_to_file()
 
     # apply manual hinting to them
     add_hints(stories)
