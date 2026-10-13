@@ -8,7 +8,7 @@ from analysis.read_counts import load_counts
 
 class Game:
     def __init__(self):
-        self.points = 100
+        self.points = 30
         self.guesses = []
         self.counts = load_counts()
         self.most_recent_guess = None
@@ -47,10 +47,10 @@ class Game:
         print("Similarity score:", percentage_score)
 
     def hint(self):
-        selection = input("Which guess do you want a hint about? 1. Your closest guess 2. Your 2nd closest guess etc. To go back, type anything else. ")
-        # if the selection is a number between 1 and the amount of guesses made, call hint_guess
-        if selection.isnumeric() and int(selection) > 0 and int(selection) < len(self.guesses) + 1:
-            self.hint_guess(self.guesses[int(selection) - 1])
+        selection = self.get_guess_from_slug(input("Which story that you have guessed do you want a hint about? Type anything else to go back. "))
+        # if the selection is not None, call hint_guess
+        if selection:
+            self.hint_guess(selection)
             self.deduct_points(3)
         # otherwise go back to taking your turn
         else: 
@@ -71,6 +71,12 @@ class Game:
             print(f"{highest[0]}: {highest[1]} is the most unique feature (that you haven't already hinted) shared by {guess.get_name()} and the target story!")
             self.already_hinted.append(highest[1])
 
+    def get_guess_from_slug(self, slug: str):
+        
+        for guess in self.guesses:
+            if slug == guess.get_guessed_story().get_attribute_by_name("slug"):
+                return guess
+        return None
     
     def guess(self):
         guess = guess_story(self.target, self)
