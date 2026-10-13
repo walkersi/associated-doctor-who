@@ -77,7 +77,7 @@ def compare_show(target_story, current_story, shows, counts):
         # after this point, there are more than two shows.
         # if one show is new who and one is classic, return 0.5 as they are both similar in terms of being mainline tv.
         elif set([t_show, c_show]) == set([Show.NEW_WHO, Show.CLASSIC]):
-            return {"tv": 0.99 ** (counts[t_show]["count"] + counts[c_show]["count"])}
+            return {"mainline tv": 0.99 ** (counts[t_show]["count"] + counts[c_show]["count"])}
         # if t_show and c_show are both spinoffs (a "subset" of the spinoff set) then return 0.7 
         elif set([t_show, c_show]).issubset(Show.SPINOFFS):
             spinoff_counts = 0
