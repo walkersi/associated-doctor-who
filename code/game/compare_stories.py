@@ -68,21 +68,22 @@ def compare_show(target_story, current_story, shows, counts):
     else:
         t_show = target_story.show
         c_show = current_story.show 
-        #TODO currently there is no way of actually telling how many stories belong to each show. sam my love please do that
         # if there's more than one show, check if it's an identical match
         if t_show == c_show:
-            return {target_story.show: 0.99 ** len(counts[t_show])}
+            return {target_story.show: 0.99 ** counts[t_show]["count"]}
         # if there's exactly two shows and it's not a match, return 0. Similartiy between different shows doesn't matter.
         elif len(shows) == 2:
             return {"no match": 0}
         # after this point, there are more than two shows.
         # if one show is new who and one is classic, return 0.5 as they are both similar in terms of being mainline tv.
         elif set([t_show, c_show]) == set([Show.NEW_WHO, Show.CLASSIC]):
-            return {"tv": 0.99 ** (len(counts[t_show]) + len(counts[c_show]))}
+            return {"tv": 0.99 ** (counts[t_show]["count"] + counts[c_show]["count"])}
         # if t_show and c_show are both spinoffs (a "subset" of the spinoff set) then return 0.7 
-        elif set([t_show, c_show]).issubset({Show.TORCHWOOD, Show.CLASS, Show.WAR_BETWEEN, Show.SARAH_JANE_ADVENTURES}):
-            spinoff_counts = (len(counts[Show.TORCHWOOD]) + len(counts[Show.CLASS]) 
-                              + len(counts[Show.WAR_BETWEEN]) + len(counts[Show.SARAH_JANE_ADVENTURES]))
+        elif set([t_show, c_show]).issubset(Show.SPINOFFS):
+            spinoff_counts = 0
+            for spinoff in Show.SPINOFFS:
+                if spinoff in shows:
+                    spinoff_counts += counts[spinoff]["count"] 
             return {"spinoff": 0.99 ** spinoff_counts}
         else: 
             return {"no match": 0}

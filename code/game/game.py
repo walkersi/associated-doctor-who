@@ -2,7 +2,7 @@ from game.guesser import guess_story
 import random
 from datasets.story_loader import load_stories
 from tardis.tardis_types import Show
-from game.compare_stories import compute_similarity, compare_stories
+from game.compare_stories import compute_similarity, compare_stories, find_story
 from game.guesser import Guess
 from analysis.read_counts import load_counts
 
@@ -15,7 +15,8 @@ class Game:
         self.shows = [Show.NEW_WHO, Show.CLASSIC, Show.TORCHWOOD, Show.CLASS, Show.WAR_BETWEEN, Show. SARAH_JANE_ADVENTURES]
         self.stories = [s for s in load_stories() if s.show in self.shows]
         self.already_hinted = []
-        self.target = random.choice(self.stories)
+        #self.target = random.choice(self.stories)
+        self.target = find_story(self.stories, "meat")
         self.target_score = compute_similarity(compare_stories(self.target, self.target, self), self.counts, self.shows)[0]
 
     def get_points(self):
