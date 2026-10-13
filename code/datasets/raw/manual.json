@@ -7,11 +7,21 @@
                     "the-time-of-the-doctor", "last-christmas", "the-husbands-of-river-song",
                 "the-return-of-doctor-mysterio", "twice-upon-a-time", "the-church-on-ruby-road",
                 "joy-to-the-world"],
-            "tropes": "christmas"
+            "tropes": "christmas-special"
         },
         "&new_years_specials": {
-            "_slugs": ["the-end-of-time-part-2", "revolution-of-the-daleks", "resolution", "eve-of-the-daleks"],
+            "_slugs": ["the-end-of-time-part-2", "spyfall-part-1", "revolution-of-the-daleks", "resolution", "eve-of-the-daleks"],
             "tropes": "new-year"
+        },
+        "&christmas_happens": {
+            "_slugs": ["the-unquiet-dead", "love-and-monsters", "turn-left", "the-pilot", "space-babies", 
+                    "the-legend-of-ruby-sunday", "empire-of-death", "the-daleks-master-plan", "the-christmas-invasion", "the-runaway-bride",
+                    "voyage-of-the-damned", "the-next-doctor", "the-end-of-time-part-1",
+                    "a-christmas-carol", "the-doctor-the-widow-and-the-wardrobe", "the-snowmen", 
+                    "the-time-of-the-doctor", "last-christmas", "the-husbands-of-river-song",
+                "the-return-of-doctor-mysterio", "twice-upon-a-time", "the-church-on-ruby-road",
+                "joy-to-the-world"],
+            "tropes": "christmas"
         }
 
     },
