@@ -47,8 +47,6 @@ class DictLike:
         return self.__dict__[name]
         
 
-
-
 # application-relevant representation of storys from tardisguide database
 @dataclass
 class Story(DictLike):
@@ -62,5 +60,3 @@ class Story(DictLike):
     locations: list[str]
     time_travel: list[str]
     show: str # where the string is a value of Show
-
-    
