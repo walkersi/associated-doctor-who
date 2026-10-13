@@ -16,7 +16,7 @@ class Game:
         self.stories = [s for s in load_stories() if s.show in self.shows]
         self.already_hinted = []
         self.target = random.choice(self.stories)
-        #self.target = find_story(self.stories, "meat")
+        #self.target = find_story(self.stories, "a-christmas-carol")
         self.target_score = compute_similarity(compare_stories(self.target, self.target, self), self.counts, self.shows)[0]
 
     def get_points(self):
