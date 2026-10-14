@@ -26,8 +26,40 @@ class Backoff:
     def elapsed(self):
         return datetime.now() > self.until
 
+# represents an API request to lookup
+class APIRequest:
+    def __init__(self, endpoint: str, parameters: dict = None, obey_rate_limit: bool = True):
+        self.endpoint = endpoint
+        self.parameters = {} if not parameters else parameters
+        self.obey_rate_limit = True
 
-class API:
+    def get_normalised_endpoint(self, config):
+            # get configured api endpoint root
+            root = config.get(Config.API_ENDPOINT)
+    
+            # slice off leading path "/"
+            if self.endpoint[0] == "/":
+                self.endpoint = self.endpoint[1:]
+            # allow inclusion of API endpoint already present
+            if self.endpoint.startswith(root):
+                return self.endpoint
+            elif ":" in self.endpoint:
+                # but reject any other endpoint (regardless of protocol)
+                raise APIEndpointRejectedException("Endpoint " + self.endpoint + " is not allowed.")
+    
+            return root + self.endpoint
+
+    def get_endpoint(self):
+        return self.endpoint
+
+    def get_parameters(self):
+        return self.parameters
+
+    def obeys_rate_limit(self):
+        return self.obey_rate_limit
+
+
+class APIConnection:
     def __init__(self):
         # to pace API requests so that minute-rates are not exceeded
         self.timings_backoff = None
@@ -40,6 +72,9 @@ class API:
         self.key = APIKey(self.config)
         # load the api cache
         self.cache = APICache(self.config)
+        # when returning a 200 from the API, this (optional) config value is
+        # used to grab a field from the response to use as the actual data (i.e. to ignore metadata)
+        self.automatic_subfield = self.config.get(Config.API_AUTOMATIC_SUBFIELD)
 
     # returns true if/when ready for request
     def rate_wait(self):
@@ -58,22 +93,6 @@ class API:
 
         return True
 
-    def normalise_endpoint(self, endpoint: str):
-        # get configured api endpoint root
-        root = self.config.get(Config.API_ENDPOINT)
-
-        # slice off leading path "/"
-        if endpoint[0] == "/":
-            endpoint = endpoint[1:]
-        # allow inclusion of API endpoint already present
-        if endpoint.startswith(root):
-            return endpoint
-        elif ":" in endpoint:
-            # but reject any other endpoint (regardless of protocol)
-            raise APIEndpointRejectedException("Endpoint " + endpoint + " is not allowed.")
-
-        return root + endpoint
-
     #
     # send an API query to tardis guide. returns None if limited or error
     # (i.e. to respond to rate limit requirements) if rate_limit == True
@@ -83,7 +102,13 @@ class API:
     # raises: APIEndpointRejectedException if supplied bad endpoint
     # APIRateLimitedException if response contains 429
     # 
-    def get(self, endpoint: str, params: dict = None, rate_limit: bool = True, log_errors: bool = True):
+    def get(self, request: APIRequest):
+
+        
+        # unpack API request details
+        endpoint = request.get_endpoint()
+        params = request.get_parameters()
+        obeys_rate_limit = request.obeys_rate_limit()
         
         # check the cache
         cached_response = self.cache.get_cached_response(endpoint, params)
@@ -91,15 +116,8 @@ class API:
             LOGGER.info('Cache hit for', endpoint, level=Level.VERBOSE)   
             return cached_response
 
-        # add the actual Tardis guide url
-        full_endpoint = self.normalise_endpoint(endpoint)
-        
-        # use empty dict for request params
-        if not params:
-            params = {}
-
         # apply rate limit
-        if rate_limit:
+        if obeys_rate_limit:
             LOGGER.info("API waiting for client-throttle rate limit", level=Level.VERBOSE)
             if not self.rate_wait():
                 return None
@@ -107,7 +125,8 @@ class API:
         # send API request to tardisguide
         LOGGER.info('Sending API request at', datetime.now(), 'to', endpoint, level=Level.DEVELOPER)
         LOGGER.info('Request with params', params, level=Level.VERBOSE)    
-        response = requests.get(full_endpoint, headers=self.key.as_header(), params=params, 
+        response = requests.get(request.get_normalised_endpoint(self.config), 
+                                headers=self.key.as_header(), params=params, 
                                 timeout=self.config.get(Config.REQUEST_TIMEOUT_SECONDS))
         LOGGER.info('Received API Response at', datetime.now(), 'from', endpoint, level=Level.VERBOSE)
         
@@ -118,11 +137,15 @@ class API:
 
         # return response
         elif response.status_code == 200:
-            # cache it first!
+            # extract response data
             api_response = response.json()
+            if self.automatic_subfield:
+                # remove metadata if necessary
+                api_response = api_response[self.automatic_subfield]
+            # cache it then return
             self.cache.add_entry(endpoint, params, response.text)
             return api_response
-        elif response.status_code >= 400 and log_errors:
+        elif response.status_code >= 400:
             # raise general error
             raise APIResponseException(f"Error code {response.status_code} received from server.", response.status_code, endpoint, params, response.json())
 
