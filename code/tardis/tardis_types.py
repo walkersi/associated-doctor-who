@@ -73,4 +73,4 @@ class Story(DictLike):
     characters: list[str]
     locations: list[str]
     time_travel: list[str]
-    show: str # where the string is a slug value of Show
+    show: Show|str # where the string is a slug value of Show
