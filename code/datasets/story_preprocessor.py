@@ -135,11 +135,11 @@ def main():
         # send tardis guide requests for each rich story description
         rich_story = api.get(APIRequest(f"story/{stub.slug}"))
         # bundle with the show field
-        riches.append(CategorisedRich(rich_story, stub.slug))
+        riches.append(CategorisedRich(rich_story, stub.show))
 
     LOGGER.info("Gathered rich story API responses, n=", len(riches))
     # disconnect from API
-    api.disconnect()
+    api.close()
 
     # process the stories into application objects
     stories = [rich.get_as_story() for rich in riches]
