@@ -1,11 +1,11 @@
 # intermediate representations of stories used during preprocessing
 from dataclasses import dataclass
-from tardis.tardis_types import Story
+from tardis.tardis_types import Story, Show
 
 @dataclass
 class StubStory: # a story before API hit
     slug: str
-    show: str
+    show: Show
 
 # constants that match fields in the API response itself
 TITLE = "title"
@@ -25,7 +25,7 @@ PLAINTEXT_OBJECT_GROUPS = [WRITERS]
 @dataclass
 class CategorisedRich: # an API response bundled with the CSV show categorisation
     story: dict
-    show: str
+    show: Show
 
     # extracts slugs from grouped items with slugs (e.g. tropes)
     def extract(self, field):
