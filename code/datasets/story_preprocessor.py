@@ -1,12 +1,12 @@
 import datasets.data_extraction as data
 from datasets.serialise import serialise_to_file
-from tardis.tardis_guide import TardisGuide
 from tardis.tardis_types import Story, Show
 from api.logger import Logger, Level, Type
 from datasets.story_transients import StubStory, CategorisedRich
 from datasets.os_utils import create_nested_directory
 from datasets.manual_hinting import add_hints
 from datasets.slug_map import GeneratingSlugMap
+from api.api_connection import APIConnection, APIRequest
 
 # code for automatically gathering rich texts for all of a certain 
 # story type from the local csv source
@@ -127,15 +127,22 @@ def main():
     stubs = load_all_stub_stories()
     LOGGER.info("Loaded slugs from CSV, n=", len(stubs))
     # connect to API
-    guide = TardisGuide()
-    # request rich story descriptions of all the stories
-    riches = [CategorisedRich(guide.get_story_rich(stub.slug), stub.show) for stub in stubs]
+    api = APIConnection()
+
+    # collect together rich story responses
+    riches = []
+    for stub in stubs:
+        # send tardis guide requests for each rich story description
+        rich_story = api.get(APIRequest(f"story/{stub.slug}"))
+        # bundle with the show field
+        riches.append(CategorisedRich(rich_story, stub.slug))
+
     LOGGER.info("Gathered rich story API responses, n=", len(riches))
     # disconnect from API
-    guide.disconnect()
+    api.disconnect()
+
     # process the stories into application objects
     stories = [rich.get_as_story() for rich in riches]
-    
     LOGGER.info("Created story objects, n=", len(stories))
 
     # create a map of slugs to localised names for easy lookup
@@ -144,7 +151,6 @@ def main():
 
     # apply manual hinting to them
     add_hints(stories)
-
     LOGGER.info("Applied manual hints")
 
     # make sure the target path exists
