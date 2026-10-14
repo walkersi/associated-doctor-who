@@ -73,6 +73,7 @@ class Config:
     MAX_REQUESTS_PER_MINUTE = Rule("max_requests_per_minute")
     REQUEST_GAP_SECONDS = InferredRule("request_gap_seconds", lambda rpm: (1/rpm/60), MAX_REQUESTS_PER_MINUTE)
     API_ENDPOINT = Rule("endpoint_root")
+    API_AUTOMATIC_SUBFIELD = Rule("api_automatic_subfield", default=None)
     
     BACKOFF_AFTER_429_SECONDS = Rule("backoff_after_429_seconds")
     REQUEST_TIMEOUT_SECONDS = Rule("request_timeout_seconds", default=30)
@@ -104,7 +105,7 @@ def load_config():
     try:
         with open(CONFIG_FILE, "r") as config_json:
             config_dict = json.load(config_json)
-            return  Config(config_dict)
+            return Config(config_dict)
             
     except APIConfigFileInvalid as exc:
         raise exc
