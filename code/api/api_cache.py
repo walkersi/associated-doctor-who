@@ -91,17 +91,22 @@ class APICache:
             return False
         return True
 
+    # checks if this cache contains the given entry key without validating the entry
+    # for exiry - returns the key if present, or None
+    def check_for_entry_without_validating(self, endpoint: str, params: dict = None):
+        entry_key = self.to_entry_string(endpoint, params)
+        return entry_key if entry_key in self.cache else None
+
     # check cache for an up-to-date entry with given endpoint and params
     # return the value of the entry, or none
     # will remove an expired entry if found
     def check_for_entry(self, endpoint: str, params: dict = None):
-        entry_key = self.to_entry_string(endpoint, params)
-        if entry_key in self.cache:
-            if self.validate(entry_key):
-                return self.cache[entry_key]
+        entry_key = self.check_for_entry_without_validating(endpoint, params=params)
+        if entry_key and self.validate(entry_key):
+            return self.cache[entry_key]
         return None
 
-    # returns the cached response to an endpoint/param API lookup, if it exists
+    # returns the cached response to an endpoint/param API lookup, if it is present
     def get_cached_response(self, endpoint: str, params: dict = None):
         entry = self.check_for_entry(endpoint, params)
         if entry == None:
