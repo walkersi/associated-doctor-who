@@ -6,6 +6,7 @@ from api.api_locker import APIKey
 from api.api_cache import APICache
 from api.api_exceptions import *
 from api.api_config import *
+from datasets.serialise import serialise
 
 class Backoff:
     def __init__(self, wait_seconds: float):
@@ -32,6 +33,8 @@ class APIRequest:
         self.endpoint = endpoint
         self.parameters = {} if not parameters else parameters
         self.obey_rate_limit = True
+        # used in asynchronous operations to retrieve a return value easily
+        self.response = None
 
     def get_normalised_endpoint(self, config):
             # get configured api endpoint root
@@ -77,7 +80,7 @@ class APIConnection:
         self.automatic_subfield = self.config.get(Config.API_AUTOMATIC_SUBFIELD)
 
     # returns true if/when ready for request
-    def rate_wait(self):
+    def is_ready(self):
         if self.hard_limit_backoff:
             # currently backing off, don't send request
             if not self.hard_limit_backoff.elapsed():
@@ -89,9 +92,17 @@ class APIConnection:
         if self.timings_backoff:
             self.timings_backoff.wait_for()
 
+        return True
+
+    def new_backoff(self):
         self.timings_backoff = Backoff(self.config.get(Config.REQUEST_GAP_SECONDS))
 
-        return True
+
+    # returns true if the requests exists in the API cache (and is valid)
+    # note: this therefore validates any corresponding entry and may drop it
+    def request_exists_in_cache(self, request: APIRequest):
+        return self.cache.check_for_entry_without_validating(
+            request.get_endpoint(), request.get_parameters())
 
     #
     # send an API query to tardis guide. returns None if limited or error
@@ -103,7 +114,6 @@ class APIConnection:
     # APIRateLimitedException if response contains 429
     # 
     def get(self, request: APIRequest):
-
         
         # unpack API request details
         endpoint = request.get_endpoint()
@@ -119,10 +129,13 @@ class APIConnection:
         # apply rate limit
         if obeys_rate_limit:
             LOGGER.info("API waiting for client-throttle rate limit", level=Level.VERBOSE)
-            if not self.rate_wait():
+            if not self.is_ready():
                 return None
 
-        # send API request to tardisguide
+        # reset rate limit delay
+        self.new_backoff()
+
+        # send API request to (tardisguide)
         LOGGER.info('Sending API request at', datetime.now(), 'to', endpoint, level=Level.DEVELOPER)
         LOGGER.info('Request with params', params, level=Level.VERBOSE)    
         response = requests.get(request.get_normalised_endpoint(self.config), 
@@ -142,8 +155,10 @@ class APIConnection:
             if self.automatic_subfield:
                 # remove metadata if necessary
                 api_response = api_response[self.automatic_subfield]
-            # cache it then return
-            self.cache.add_entry(endpoint, params, response.text)
+            # cache it
+            self.cache.add_entry(endpoint, params, serialise(api_response))
+            # store in the request for asynchronous access then return
+            request.response = api_response
             return api_response
         elif response.status_code >= 400:
             # raise general error
