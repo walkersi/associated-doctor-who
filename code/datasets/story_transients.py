@@ -59,7 +59,7 @@ class CategorisedRich: # an API response bundled with the CSV show categorisatio
         return self.extract(TIME_TRAVEL)
 
     def get_show(self):
-        return self.show
+        return self.show.slug
 
     # converts this story to an application-level Story object
     def get_as_story(self) -> Story:

@@ -55,12 +55,8 @@ class GeneratingSlugMap(AbstractSlugMap):
 
     def add_show_mappings(self):
         # map all the [non tardis guide] slugs for shows too
-        self.add_mapping("show", Show.NEW_WHO, "New Who")
-        self.add_mapping("show", Show.CLASSIC, "Classic Who")
-        self.add_mapping("show", Show.CLASS, "Class")
-        self.add_mapping("show", Show.SARAH_JANE_ADVENTURES, "Sarah Jane Adventures")
-        self.add_mapping("show", Show.TORCHWOOD, "Torchwood")
-        self.add_mapping("show", Show.WAR_BETWEEN, "The War Between The Land And The Sea")
+        for show in Show.ALL_SHOWS:
+            self.add_mapping("show", show.slug, show.translation)
 
 
     def add_manual_mappings(self):

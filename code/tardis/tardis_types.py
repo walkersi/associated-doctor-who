@@ -1,17 +1,31 @@
 from dataclasses import dataclass
-from enum import Enum
 
-
-# enum container to represent shows -> these are NOT from the tardis guide API
+# container to represent shows -> these are NOT from the tardis guide API
 class Show:
-    NEW_WHO = "new-who"
-    CLASSIC = "classic-who"
-    TORCHWOOD = "torchwood"
-    SARAH_JANE_ADVENTURES = "sja"
-    CLASS = "class"
-    WAR_BETWEEN = "twatblast"
-    SPINOFFS = [CLASS, WAR_BETWEEN, SARAH_JANE_ADVENTURES, TORCHWOOD]
-    MAIN_SHOW = [NEW_WHO, CLASSIC]
+    ALL_SHOWS = set()
+
+    def __init__(self, slug, translation):
+        self.slug = slug
+        self.translation = translation
+        Show.ALL_SHOWS.add(self)
+
+    def __hash__(self):
+        return hash(self.slug)
+
+    def __eq__(self, other):
+        if isinstance(other, Show):
+            return self.slug == other.slug
+        return other == self.slug
+# arbitrary constants to identify and translate shows themselves
+Show.NEW_WHO = Show("new-who", "New Who")
+Show.CLASSIC = Show("classic-who", "Classic Who")
+Show.TORCHWOOD = Show("torchwood", "Torchwood")
+Show.SARAH_JANE_ADVENTURES = Show("sja", "Sarah Jane Adventures")
+Show.CLASS = Show("class", "Class")
+Show.WAR_BETWEEN = Show("twatblast", "The War Between the Land and the Sea")
+# lists representing key groups of shows
+Show.SPINOFFS = [Show.TORCHWOOD, Show.SARAH_JANE_ADVENTURES, Show.CLASS, Show.WAR_BETWEEN]
+Show.MAIN_SHOW = [Show.NEW_WHO, Show.CLASSIC]
 
 # represents an object whose attribute names are semantically meaningful
 class DictLike:
@@ -59,4 +73,4 @@ class Story(DictLike):
     characters: list[str]
     locations: list[str]
     time_travel: list[str]
-    show: str # where the string is a value of Show
+    show: str # where the string is a slug value of Show
