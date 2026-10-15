@@ -71,7 +71,8 @@ class Config:
     LOGGING_MODE = Rule("logger_mode", default="developer")
     
     MAX_REQUESTS_PER_MINUTE = Rule("max_requests_per_minute")
-    REQUEST_GAP_SECONDS = InferredRule("request_gap_seconds", lambda rpm: (1/rpm/60), MAX_REQUESTS_PER_MINUTE)
+    MAX_REQUESTS_IN_FLIGHT = Rule("max_requests_in_flight", default=3)
+    REQUEST_GAP_SECONDS = InferredRule("request_gap_seconds", lambda rpm: (1/(rpm/60)), MAX_REQUESTS_PER_MINUTE)
     API_ENDPOINT = Rule("endpoint_root")
     API_AUTOMATIC_SUBFIELD = Rule("api_automatic_subfield", default=None)
     
