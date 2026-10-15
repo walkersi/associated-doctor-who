@@ -16,6 +16,7 @@ CHARACTERS = "characters"
 CAST = "actors"
 LOCATIONS = "locations"
 TIME_TRAVEL = "time_travel"
+SHOW = "show"
 # collects the fields that map to lists of dicts of named API objects 
 # (that have slugs and english names)
 SLUGGED_OBJECT_GROUPS = [TROPES, CHARACTERS, CAST, LOCATIONS, TIME_TRAVEL]
