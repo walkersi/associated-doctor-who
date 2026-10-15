@@ -1,4 +1,6 @@
 import datasets.data_extraction as data
+import asyncio
+from datetime import datetime
 from datasets.serialise import serialise_to_file
 from tardis.tardis_types import Story, Show
 from api.logger import Logger, Level, Type
@@ -15,11 +17,12 @@ from api.api_connection import APIConnection, APIRequest
 # --> story filenames in format "[output path]/episode-slug.VERSION.json"
 
 OUTPUT_PATH = "datasets/processed/stories/"
-SCHEMA_VERSION = "v1.0.4" # v1.0.1 supports time_travel in schema, 
+SCHEMA_VERSION = "v1.0.5" # v1.0.1 supports time_travel in schema, 
 #  v1.0.3 supports full multi-show categorisation
 # v1.0.4 filters out reconstructions properly
+# v1.0.5 filters out special editions
 # logger for this part of the system
-LOGGER = Logger(type=Type.INFO, level=Level.DEVELOPER)
+LOGGER = Logger(type=Type.INFO, level=Level.DEVELOPER, timestamp=True)
 
 # dict_keys
 TITLE = "title"
@@ -73,9 +76,13 @@ def should_keep_record(record: dict):
     # keep record when its TV [New/Classic, Class/SJA/Torchwood/War Between]
 
     # useful functions for searching quicker
-    start_with_any_of = lambda cur, matches: any([cur.startswith(match) for match in matches])
+    any_of = lambda cur, matches, f: any([f(cur, match) for match in matches])
+    all_of = lambda cur, matches, f: all([f(cur, match) for match in matches])
+    starts_with = lambda cur, match: cur.startswith(match)
+    start_with_any_of = lambda cur, matches: any_of(cur, matches, starts_with)
     does_not_end_with = lambda cur, match: not cur.endswith(match)
     does_not_contain = lambda cur, match: match not in cur
+    does_not_contain_any_of = lambda cur, matches: all_of(cur, matches, does_not_contain)
 
     # series filter is based on CSV format:
     #  - Doctor Who S[6] or S[pecials] or S[eason One]
@@ -86,10 +93,10 @@ def should_keep_record(record: dict):
         {MEDIA: "TV", RANGE: "Doctor Who", SERIES: ["Doctor Who S", "60th Anniversary Specials"]},
         {SERIES: start_with_any_of}
     )
-    # classic except telesnap reconstructions
+    # classic except telesnap reconstructions and special rereleases
     classic_who_filter = (
-        {MEDIA: "TV", RANGE: "Doctor Who", SERIES: ["Classic"], TITLE: "Reconstruction"},
-        {SERIES: start_with_any_of, TITLE: does_not_contain}
+        {MEDIA: "TV", RANGE: "Doctor Who", SERIES: ["Classic"], TITLE: ["Reconstruction", "Special Edition"]},
+        {SERIES: start_with_any_of, TITLE: does_not_contain_any_of}
     )
     # torchwood/sja/class, except Alien Files
     major_spin_off_filter = (
@@ -122,20 +129,21 @@ def save_story(story: Story):
     serialise_to_file(story, file_path)
 
 
-def main():
+async def main():
+    LOGGER.info("Starting preprocessor")
     # load a list of the new who tardis guide slug IDs using the CSV file
     stubs = load_all_stub_stories()
     LOGGER.info("Loaded slugs from CSV, n=", len(stubs))
     # connect to API
     api = APIConnection()
-
+    LOGGER.info("Opened API connection, beginning requests")
     # collect together rich story responses
-    riches = []
-    for stub in stubs:
-        # send tardis guide requests for each rich story description
-        rich_story = api.get(APIRequest(f"story/{stub.slug}"))
-        # bundle with the show field
-        riches.append(CategorisedRich(rich_story, stub.show))
+    # send tardis guide requests for each rich story description
+    requests = await api.get_many(
+        [APIRequest(f"story/{stub.slug}", bundled_data=stub.show) for stub in stubs])
+    LOGGER.info("Finished API request group")
+    # bundle with the show field
+    riches = list(map(lambda r: CategorisedRich(r.response, r.get_bundled_data()), requests))
 
     LOGGER.info("Gathered rich story API responses, n=", len(riches))
     # disconnect from API
@@ -159,5 +167,7 @@ def main():
     for story in stories:
         save_story(story)
 
+    LOGGER.info("Written preprocessed stories to filesystem")
+
 if __name__=='__main__':
-    main()
+    asyncio.run(main())
