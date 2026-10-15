@@ -1,5 +1,6 @@
 from enum import Enum
 from api.api_config import Config
+from datetime import datetime
 
 # logging level and type enums
 Level = Enum('Level', [('INIT', 0), ('ALWAYS', 1), ('DEVELOPER', 2), ('VERBOSE', 3)])
@@ -7,9 +8,10 @@ Level = Enum('Level', [('INIT', 0), ('ALWAYS', 1), ('DEVELOPER', 2), ('VERBOSE',
 Type = Enum('TYPE', [('INFO', '[info]'), ('WARN', '\033[93m[warn]'), ('FAIL', '\033[91m[fail]'), ('SUCCESS', '\033[92m[good]')])
 
 class Logger:
-    def __init__(self, type, level):
+    def __init__(self, type, level, timestamp=False):
         self.default_type = type
         self.level = level
+        self.timestamp = timestamp
 
     # change this logging level based on config line
     def reconfigure(self, config: Config):
@@ -30,6 +32,8 @@ class Logger:
     def log(self, *text, type: Type = None, level: Level = Level.ALWAYS):
         if self.accepts(level):
             print(type.value, end=' ')
+            if self.timestamp:
+                print(f"[{datetime.now()}]", end=' ')
             for phrase in text:
                 print(phrase, end=' ')
             print("\033[0m") # newline, end colour
