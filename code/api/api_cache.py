@@ -69,17 +69,23 @@ class APICache:
         # get a hash string for the filename of this cache entry
         hasher = hashlib.sha1()
         hasher.update(entry_key.encode())
-        file_name = hasher.hexdigest()
+        file_name = hasher.hexdigest() 
+        # no point storing file extension in CSV since its always the same
+        
         # figure out the timestamp for invalidation
         expires_at = datetime.now() + timedelta(seconds=expiry_seconds)
         # write to in-memory cache
         self.cache[entry_key] = APICache.EntryValue(file_name, expires_at)
         # and create the cached response
-        with open(self.cache_directory + file_name, "w+") as cache_entry:
+        with open(self.cache_directory + file_name + self.get_cache_file_extension(), 
+                  "w+") as cache_entry:
             cache_entry.write(response)
 
         return True
 
+    def get_cache_file_extension(self):
+        return ".api"
+    
     # remove entry if it is expired (note: ASSUMES IT EXISTS)
     # returns true if entry still valid
     def validate(self, entry_key: str):
@@ -116,7 +122,8 @@ class APICache:
         # TODO security of this cache - what if external file tampered with?
         # check for external cache file
         try:
-            with open(self.cache_directory + entry.file, "r") as cache_entry:
+            with open(self.cache_directory + entry.file + self.get_cache_file_extension(), 
+                      "r") as cache_entry:
                 # read as json object
                 return json.load(cache_entry)
         except FileNotFoundError:
