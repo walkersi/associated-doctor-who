@@ -43,10 +43,10 @@ def compute_similarity(overlapping_attributes: dict[str, set], counts, shows):
             match key:
                 # tropes scale faster than other attributes as they tend to be less meaningful
                 case "tropes":
-                    base = 0.8
+                    base = 0.85
                 # There are not many time travel options, so it should scale slowly.
                 case "time_travel":
-                    base = 0.99
+                    base = 0.98
                 case "show":
                     adding_score = overlapping_attributes[key][attribute]
                 case _:
