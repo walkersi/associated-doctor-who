@@ -5,19 +5,22 @@ from tardis.tardis_types import Show
 from game.compare_stories import compute_similarity, compare_stories, find_story
 from game.guesser import Guess
 from analysis.read_counts import load_counts
+from analysis.read_weights import load_weights
 
 class Game:
     def __init__(self):
         self.points = 30
         self.guesses = []
         self.counts = load_counts()
+        self.trope_weights = load_weights()
         self.most_recent_guess = None
-        self.shows = [Show.NEW_WHO, Show.CLASSIC, Show.TORCHWOOD, Show.CLASS, Show.WAR_BETWEEN, Show. SARAH_JANE_ADVENTURES]
+        #self.shows = [Show.NEW_WHO, Show.CLASSIC, Show.TORCHWOOD, Show.CLASS, Show.WAR_BETWEEN, Show. SARAH_JANE_ADVENTURES]
+        self.shows = [Show.NEW_WHO]
         self.stories = [s for s in load_stories() if s.show in self.shows]
         self.already_hinted = []
         self.target = random.choice(self.stories)
         #self.target = find_story(self.stories, "a-christmas-carol")
-        self.target_score = compute_similarity(compare_stories(self.target, self.target, self), self.counts, self.shows)[0]
+        self.target_score = compute_similarity(compare_stories(self.target, self.target, self), self.counts, self.shows, self.trope_weights)[0]
 
     def get_points(self):
         return self.points

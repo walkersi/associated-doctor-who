@@ -33,7 +33,7 @@ def find_story(stories: list[Story], story_slug: str):
             return story
     return None
 
-def compute_similarity(overlapping_attributes: dict[str, set], counts, shows):
+def compute_similarity(overlapping_attributes: dict[str, set], counts, shows, trope_weights):
     #print(overlapping_attributes)
     similarity_score = 0
     all_scores = {}
@@ -43,9 +43,13 @@ def compute_similarity(overlapping_attributes: dict[str, set], counts, shows):
             match key:
                 # tropes scale faster than other attributes as they tend to be less meaningful
                 case "tropes":
-                    base = 0.85
+                    if attribute in trope_weights:
+                        base = trope_weights[attribute]
+                    else:
+                        base = 0.9
                 # There are not many time travel options, so it should scale slowly.
                 case "time_travel":
+
                     base = 0.98
                 case "show":
                     adding_score = overlapping_attributes[key][attribute]
