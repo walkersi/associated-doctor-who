@@ -110,5 +110,5 @@ class Game:
             print("The correct story was:", self.target.title)
             
 
-game = Game()
-game.play_game()
+#game = Game()
+#game.play_game()
