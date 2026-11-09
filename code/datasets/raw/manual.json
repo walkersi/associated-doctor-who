@@ -30,7 +30,8 @@
             "time_travel": "unclear"
         },
         "&not_actually_celebrity_historicals": {
-            "_slugs": ["the-end-of-time-part-2"],
+            "_slugs": ["bad-wolf", "fear-her", "out-of-time", "voyage-of-the-damned", "the-end-of-time-part-1", "the-end-of-time-part-2",
+                "the-eleventh-hour", "the-beast-below", "the-wedding-of-river-song", "dinosaurs-on-a-spaceship"],
             "tropes": "celebrity-historical"
         }
     }

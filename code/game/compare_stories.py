@@ -49,7 +49,6 @@ def compute_similarity(overlapping_attributes: dict[str, set], counts, shows, tr
                         base = 0.9
                 # There are not many time travel options, so it should scale slowly.
                 case "time_travel":
-
                     base = 0.98
                 case "show":
                     adding_score = overlapping_attributes[key][attribute]

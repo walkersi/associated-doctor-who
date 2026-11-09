@@ -14,8 +14,8 @@ class Game:
         self.counts = load_counts()
         self.trope_weights = load_weights()
         self.most_recent_guess = None
-        #self.shows = [Show.NEW_WHO, Show.CLASSIC, Show.TORCHWOOD, Show.CLASS, Show.WAR_BETWEEN, Show. SARAH_JANE_ADVENTURES]
-        self.shows = [Show.NEW_WHO]
+        self.shows = [Show.NEW_WHO, Show.CLASSIC, Show.TORCHWOOD, Show.CLASS, Show.WAR_BETWEEN, Show. SARAH_JANE_ADVENTURES]
+        #self.shows = [Show.NEW_WHO]
         self.stories = [s for s in load_stories() if s.show in self.shows]
         self.already_hinted = []
         self.target = random.choice(self.stories)
@@ -110,5 +110,5 @@ class Game:
             print("The correct story was:", self.target.title)
             
 
-#game = Game()
-#game.play_game()
+game = Game()
+game.play_game()
