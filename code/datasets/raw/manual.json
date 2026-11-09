@@ -28,6 +28,10 @@
     "remove": {
         "*": {
             "time_travel": "unclear"
+        },
+        "&not_actually_celebrity_historicals": {
+            "_slugs": ["the-end-of-time-part-2"],
+            "tropes": "celebrity-historical"
         }
     }
 }
