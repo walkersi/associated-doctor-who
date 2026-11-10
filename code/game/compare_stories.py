@@ -52,6 +52,8 @@ def compute_similarity(overlapping_attributes: dict[str, set], counts, shows, tr
                     base = 0.98
                 case "show":
                     adding_score = overlapping_attributes[key][attribute]
+                case "character":
+                    base = 0.97
                 case _:
                     base = 0.95
             # the adding score is a base to the power of the number of times an attribute appears across the dataset
